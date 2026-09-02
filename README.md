@@ -1,2 +1,2 @@
 # medcheck_ai
-AI-powered web application for analyzing the reliability of health-related information using Natural Language Processing (NLP).
+Web application that uses AI and Natural Language Processing (NLP) to support the verification of health-related information and combat misinformation.
