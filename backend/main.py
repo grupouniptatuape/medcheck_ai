@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Literal
 
 app = FastAPI(
     title="MedCheck AI",
@@ -8,10 +9,8 @@ app = FastAPI(
 )
 # o que o sistema está recebendo: texto ou linkw
 class EntradaAnalise(BaseModel):
-    tipo_entrada: str
+    tipo_entrada: Literal["texto", "link"]
     conteudo: str
-
-
 
 @app.get("/")
 def home():
@@ -20,7 +19,7 @@ def home():
         "message": "MedCheck AI backend funcionando"
     }
 
-# teste de recebimento
+# teste de recebimento analisar
 @app.post("/analisar")
 def analisar(entrada: EntradaAnalise):
     return {
