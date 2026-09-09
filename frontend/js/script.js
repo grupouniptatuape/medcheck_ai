@@ -5,6 +5,23 @@
 
 "use strict";
 
+const URL_BACKEND = "http://192.168.0.19:8000";
+
+async function enviarParaAnalise(tipo_entrada, conteudo) {
+  const resposta = await fetch(`${URL_BACKEND}/analisar`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      tipo_entrada: tipo_entrada,
+      conteudo: conteudo
+    })
+  });
+
+  return await resposta.json();
+}
+
 /* ── Mock data ─────────────────────────────────────────────── */
 const MOCK_RESULT = {
   claim:
@@ -386,11 +403,22 @@ function init() {
   /* Submit button */
   const submitBtn = $("#submit-btn");
   if (submitBtn) {
-    submitBtn.addEventListener("click", () => {
-      if (submitBtn.disabled) return;
-      showScreen("loading");
-      startLoadingAnimation();
-    });
+    submitBtn.addEventListener("click", async () => {
+  if (submitBtn.disabled) return;
+
+  const conteudo = activeTab === "text"
+    ? $("#content-textarea").value.trim()
+    : $("#content-link").value.trim();
+
+  const tipo_entrada = activeTab === "text" ? "texto" : "link";
+
+  showScreen("loading");
+  startLoadingAnimation();
+
+  const resultado = await enviarParaAnalise(tipo_entrada, conteudo);
+
+  console.log("Resposta do backend:", resultado);
+});
   }
 
   /* New analysis buttons */
