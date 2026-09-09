@@ -6,7 +6,7 @@ app = FastAPI(
     description="API backend do MedCheck AI",
     version="0.1.0"
 )
-// o que o sistema está recebendo: texto ou linkw
+# o que o sistema está recebendo: texto ou linkw
 class EntradaAnalise(BaseModel):
     tipo_entrada: str
     conteudo: str
@@ -20,7 +20,7 @@ def home():
         "message": "MedCheck AI backend funcionando"
     }
 
-// teste de recebimento
+# teste de recebimento
 @app.post("/analisar")
 def analisar(entrada: EntradaAnalise):
     return {
