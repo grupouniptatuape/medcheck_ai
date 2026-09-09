@@ -1,6 +1,6 @@
 /* ============================================================
    MEDCHECK AI — script.js
-   Vanilla JavaScript — no frameworks, no libraries
+   JavaScript puro — sem frameworks e sem bibliotecas
    ============================================================ */
 
 "use strict";
@@ -22,116 +22,116 @@ async function enviarParaAnalise(tipo_entrada, conteudo) {
   return await resposta.json();
 }
 
-/* ── Mock data ─────────────────────────────────────────────── */
-const MOCK_RESULT = {
-  claim:
+/* ── Dados simulados ─────────────────────────────────────────────── */
+const RESULTADO_SIMULADO = {
+  alegacao:
     "A vitamina C em altas doses previne e trata infecções respiratórias, reduzindo significativamente a duração e gravidade de gripes e resfriados.",
-  classification: "inconclusive",
-  supportLevel: 38,
-  explanation:
+  classificacao: "inconclusive",
+  nivel_suporte: 38,
+  explicacao:
     "As evidências científicas disponíveis não sustentam de forma consistente a alegação de que a vitamina C em altas doses previne infecções respiratórias na população geral. Metanálises de ensaios clínicos randomizados indicam que a suplementação pode reduzir modestamente a duração de sintomas em populações específicas (atletas de alta performance), mas os efeitos são pequenos e inconsistentes na população geral. A alegação de que 'previne' infecções não encontra suporte robusto nas revisões sistemáticas mais recentes.",
-  highlights: [
-    { text: "previne e trata infecções respiratórias", type: "problematic" },
-    { text: "reduzindo significativamente", type: "problematic" },
-    { text: "vitamina C em altas doses", type: "neutral" },
+  trechos: [
+    { texto: "previne e trata infecções respiratórias", tipo: "problematic" },
+    { texto: "reduzindo significativamente", tipo: "problematic" },
+    { texto: "vitamina C em altas doses", tipo: "neutral" },
   ],
-  references: [
+  evidencias: [
     {
-      title: "Vitamin C for preventing and treating the common cold",
-      source: "Cochrane Database of Systematic Reviews",
-      year: 2023,
-      authors: "Hemilä H, Chalker E.",
+      titulo: "Vitamin C for preventing and treating the common cold",
+      fonte: "Cochrane Database of Systematic Reviews",
+      ano: 2023,
+      autores: "Hemilä H, Chalker E.",
       url: "https://pubmed.ncbi.nlm.nih.gov/",
-      repo: "PubMed / Cochrane",
+      repositorio: "PubMed / Cochrane",
     },
     {
-      title: "Supplementation of vitamin C reduces the incidence of infection in athletes",
-      source: "British Journal of Nutrition",
-      year: 2021,
-      authors: "Peters EM, et al.",
+      titulo: "Supplementation of vitamin C reduces the incidence of infection in athletes",
+      fonte: "British Journal of Nutrition",
+      ano: 2021,
+      autores: "Peters EM, et al.",
       url: "https://pubmed.ncbi.nlm.nih.gov/",
-      repo: "PubMed",
+      repositorio: "PubMed",
     },
     {
-      title: "Vitamin C and infections — a narrative review",
-      source: "Nutrients",
-      year: 2022,
-      authors: "Carr AC, Maggini S.",
+      titulo: "Vitamin C and infections — a narrative review",
+      fonte: "Nutrients",
+      ano: 2022,
+      autores: "Carr AC, Maggini S.",
       url: "https://www.ncbi.nlm.nih.gov/pmc/",
-      repo: "PubMed Central",
+      repositorio: "PubMed Central",
     },
     {
-      title: "Vitaminas e imunidade: evidências e limitações das intervenções nutricionais",
-      source: "Revista Brasileira de Medicina",
-      year: 2022,
-      authors: "Silva MR, Ferreira AT, Costa PL.",
+      titulo: "Vitaminas e imunidade: evidências e limitações das intervenções nutricionais",
+      fonte: "Revista Brasileira de Medicina",
+      ano: 2022,
+      autores: "Silva MR, Ferreira AT, Costa PL.",
       url: "https://www.scielo.br/",
-      repo: "SciELO Brasil",
+      repositorio: "SciELO Brasil",
     },
   ],
 };
 
-const CLASSIFICATION_CONFIG = {
-  supported:    { label: "Sustentado pelas evidências",  cls: "badge-supported" },
-  inconclusive: { label: "Evidências inconclusivas",     cls: "badge-inconclusive" },
-  contradicted: { label: "Contradito pelas evidências",  cls: "badge-contradicted" },
-  insufficient: { label: "Evidências insuficientes",     cls: "badge-insufficient" },
+const CONFIGURACAO_CLASSIFICACAO = {
+  supported:    { rotulo: "Sustentado pelas evidências",  classe: "badge-supported" },
+  inconclusive: { rotulo: "Evidências inconclusivas",     classe: "badge-inconclusive" },
+  contradicted: { rotulo: "Contradito pelas evidências",  classe: "badge-contradicted" },
+  insufficient: { rotulo: "Evidências insuficientes",     classe: "badge-insufficient" },
 };
 
-const ANALYSIS_STEPS = [
+const ETAPAS_ANALISE = [
   {
-    label:    "Identificando alegações",
-    sublabel: "Extraindo afirmações do conteúdo...",
-    doneAt:   1200,
+    rotulo:    "Identificando alegações",
+    subrotulo: "Extraindo afirmações do conteúdo...",
+    conclui_em:   1200,
   },
   {
-    label:    "Buscando evidências científicas",
-    sublabel: "Consultando PubMed, SciELO, ScienceDirect...",
-    doneAt:   3200,
+    rotulo:    "Buscando evidências científicas",
+    subrotulo: "Consultando PubMed, SciELO, ScienceDirect...",
+    conclui_em:   3200,
   },
   {
-    label:    "Comparando evidências",
-    sublabel: "Avaliando consistência e relevância...",
-    doneAt:   5400,
+    rotulo:    "Comparando evidências",
+    subrotulo: "Avaliando consistência e relevância...",
+    conclui_em:   5400,
   },
   {
-    label:    "Preparando resultado",
-    sublabel: "Organizando as evidências encontradas...",
-    doneAt:   7200,
+    rotulo:    "Preparando resultado",
+    subrotulo: "Organizando as evidências encontradas...",
+    conclui_em:   7200,
   },
 ];
 
-/* ── State ─────────────────────────────────────────────────── */
-let currentScreen = "home"; // "home" | "loading" | "results"
-let activeTab     = "text"; // "text" | "link"
-let mobileMenuOpen = false;
-let loadingTimers  = [];
+/* ── Estado ─────────────────────────────────────────────────── */
+let tela_atual = "home"; // "home" | "loading" | "results"
+let aba_ativa     = "text"; // "text" | "link"
+let menu_mobile_aberto = false;
+let temporizadores_carregamento  = [];
 
-/* ── DOM refs ──────────────────────────────────────────────── */
-const $ = (sel, ctx = document) => ctx.querySelector(sel);
-const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+/* ── Referências do DOM ──────────────────────────────────────────────── */
+const selecionar = (seletor, contexto = document) => contexto.querySelector(seletor);
+const selecionarTodos = (seletor, contexto = document) => [...contexto.querySelectorAll(seletor)];
 
-/* ── Screen switching ──────────────────────────────────────── */
-function showScreen(name) {
-  currentScreen = name;
-  $$(".screen").forEach(el => el.classList.remove("active"));
-  const target = $(`#screen-${name}`);
-  if (target) {
-    target.classList.add("active");
+/* ── Troca de telas ──────────────────────────────────────── */
+function mostrarTela(nome) {
+  tela_atual = nome;
+  selecionarTodos(".screen").forEach(elemento => elemento.classList.remove("active"));
+  const alvo = selecionar(`#screen-${nome}`);
+  if (alvo) {
+    alvo.classList.add("active");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 }
 
-/* ── Mobile menu ───────────────────────────────────────────── */
-function toggleMobileMenu() {
-  mobileMenuOpen = !mobileMenuOpen;
-  const drawer = $("#mobile-drawer");
-  const btn    = $("#mobile-menu-btn");
+/* ── Menu mobile ───────────────────────────────────────────── */
+function alternarMenuMobile() {
+  menu_mobile_aberto = !menu_mobile_aberto;
+  const menu = selecionar("#mobile-drawer");
+  const botao    = selecionar("#mobile-menu-btn");
 
-  drawer.classList.toggle("open", mobileMenuOpen);
+  menu.classList.toggle("open", menu_mobile_aberto);
 
-  // Swap icon
-  btn.innerHTML = mobileMenuOpen
+  // Alterna o ícone
+  botao.innerHTML = menu_mobile_aberto
     ? `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
          <path d="M4 4l12 12M16 4L4 16" stroke-linecap="round"/>
        </svg>`
@@ -140,177 +140,177 @@ function toggleMobileMenu() {
        </svg>`;
 }
 
-function closeMobileMenu() {
-  mobileMenuOpen = false;
-  const drawer = $("#mobile-drawer");
-  const btn    = $("#mobile-menu-btn");
-  drawer.classList.remove("open");
-  btn.innerHTML = `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+function fecharMenuMobile() {
+  menu_mobile_aberto = false;
+  const menu = selecionar("#mobile-drawer");
+  const botao    = selecionar("#mobile-menu-btn");
+  menu.classList.remove("open");
+  botao.innerHTML = `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M3 6h14M3 10h14M3 14h14" stroke-linecap="round"/>
   </svg>`;
 }
 
-/* ── Tab switching ─────────────────────────────────────────── */
-function switchTab(tab) {
-  activeTab = tab;
-  $$(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
-  $$(".input-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.panel === tab));
-  updateSubmitState();
+/* ── Troca de abas ─────────────────────────────────────────── */
+function trocarAba(aba) {
+  aba_ativa = aba;
+  selecionarTodos(".tab-btn").forEach(botao => botao.classList.toggle("active", botao.dataset.tab === aba));
+  selecionarTodos(".input-panel").forEach(painel => painel.classList.toggle("active", painel.dataset.panel === aba));
+  atualizarEstadoBotao();
 }
 
-/* ── Submit button state ───────────────────────────────────── */
-function updateSubmitState() {
-  const textVal = $("#content-textarea")?.value.trim() || "";
-  const linkVal = $("#content-link")?.value.trim()     || "";
-  const canSubmit = activeTab === "text" ? textVal.length > 0 : linkVal.length > 0;
-  const btn = $("#submit-btn");
-  if (btn) btn.disabled = !canSubmit;
+/* ── Estado do botão de envio ───────────────────────────────────── */
+function atualizarEstadoBotao() {
+  const valor_texto = selecionar("#content-textarea")?.value.trim() || "";
+  const valor_link = selecionar("#content-link")?.value.trim()     || "";
+  const pode_enviar = aba_ativa === "text" ? valor_texto.length > 0 : valor_link.length > 0;
+  const botao = selecionar("#submit-btn");
+  if (botao) botao.disabled = !pode_enviar;
 }
 
-/* ── Loading animation ─────────────────────────────────────── */
-function startLoadingAnimation() {
-  // Clear any previous timers
-  loadingTimers.forEach(clearTimeout);
-  loadingTimers = [];
+/* ── Animação de carregamento ─────────────────────────────────────── */
+function iniciarAnimacaoCarregamento() {
+  // Limpa temporizadores anteriores
+  temporizadores_carregamento.forEach(clearTimeout);
+  temporizadores_carregamento = [];
 
-  const rows = $$(".step-row");
+  const linhas = selecionarTodos(".step-row");
 
-  // Reset all rows to pending
-  rows.forEach((row, i) => {
-    const indicator = $(".step-indicator", row);
-    const stepName  = $(".step-name", row);
-    const stepSub   = $(".step-sub", row);
-    const progressBar = $(".step-progress-bar", row);
+  // Reinicia todas as etapas como pendentes
+  linhas.forEach((linha, i) => {
+    const indicador = selecionar(".step-indicator", linha);
+    const nome_etapa  = selecionar(".step-name", linha);
+    const subtexto_etapa   = selecionar(".step-sub", linha);
+    const barra_progresso = selecionar(".step-progress-bar", linha);
 
-    indicator.className = "step-indicator pending";
-    indicator.innerHTML = `<span class="step-indicator-num">${i + 1}</span>`;
-    stepName.className  = "step-name pending";
-    stepName.textContent = ANALYSIS_STEPS[i].label;
-    stepSub.textContent  = "Aguardando...";
-    if (progressBar) progressBar.remove();
-    row.classList.remove("is-active");
+    indicador.className = "step-indicator pending";
+    indicador.innerHTML = `<span class="step-indicator-num">${i + 1}</span>`;
+    nome_etapa.className  = "step-name pending";
+    nome_etapa.textContent = ETAPAS_ANALISE[i].rotulo;
+    subtexto_etapa.textContent  = "Aguardando...";
+    if (barra_progresso) barra_progresso.remove();
+    linha.classList.remove("is-active");
   });
 
-  // Activate step 0 immediately
-  activateStep(0);
+  // Ativa a primeira etapa imediatamente
+  ativarEtapa(0);
 
-  // Schedule subsequent activations and completions
-  ANALYSIS_STEPS.forEach((step, i) => {
-    // Activate next step
-    if (i < ANALYSIS_STEPS.length - 1) {
-      const t1 = setTimeout(() => activateStep(i + 1), step.doneAt);
-      loadingTimers.push(t1);
+  // Agenda as ativações e conclusões das próximas etapas
+  ETAPAS_ANALISE.forEach((etapa, i) => {
+    // Ativa a próxima etapa
+    if (i < ETAPAS_ANALISE.length - 1) {
+      const temporizador_ativacao = setTimeout(() => ativarEtapa(i + 1), etapa.conclui_em);
+      temporizadores_carregamento.push(temporizador_ativacao);
     }
-    // Complete this step
-    const t2 = setTimeout(() => completeStep(i), step.doneAt);
-    loadingTimers.push(t2);
+    // Conclui esta etapa
+    const temporizador_conclusao = setTimeout(() => concluirEtapa(i), etapa.conclui_em);
+    temporizadores_carregamento.push(temporizador_conclusao);
   });
 
-  // After all done, show results
-  const totalTime = ANALYSIS_STEPS[ANALYSIS_STEPS.length - 1].doneAt + 900;
-  const tFinal = setTimeout(() => {
-    renderResults();
-    showScreen("results");
-  }, totalTime);
-  loadingTimers.push(tFinal);
+  // Depois de concluir todas as etapas, exibe os resultados
+  const tempo_total = ETAPAS_ANALISE[ETAPAS_ANALISE.length - 1].conclui_em + 900;
+  const temporizador_final = setTimeout(() => {
+    exibirResultados();
+    mostrarTela("results");
+  }, tempo_total);
+  temporizadores_carregamento.push(temporizador_final);
 }
 
-function activateStep(i) {
-  const rows = $$(".step-row");
-  if (!rows[i]) return;
-  const row       = rows[i];
-  const indicator = $(".step-indicator", row);
-  const stepName  = $(".step-name", row);
-  const stepSub   = $(".step-sub", row);
+function ativarEtapa(i) {
+  const linhas = selecionarTodos(".step-row");
+  if (!linhas[i]) return;
+  const linha       = linhas[i];
+  const indicador = selecionar(".step-indicator", linha);
+  const nome_etapa  = selecionar(".step-name", linha);
+  const subtexto_etapa   = selecionar(".step-sub", linha);
 
-  row.classList.add("is-active");
-  indicator.className = "step-indicator active";
-  indicator.innerHTML = "";
-  stepName.className  = "step-name active";
-  stepSub.textContent = ANALYSIS_STEPS[i].sublabel;
+  linha.classList.add("is-active");
+  indicador.className = "step-indicator active";
+  indicador.innerHTML = "";
+  nome_etapa.className  = "step-name active";
+  subtexto_etapa.textContent = ETAPAS_ANALISE[i].subrotulo;
 
-  // Add progress bar
-  if (!$(".step-progress-bar", row)) {
-    const bar = document.createElement("div");
-    bar.className = "step-progress-bar";
-    bar.innerHTML = `<div class="step-progress-fill"></div>`;
-    $(".step-info", row).appendChild(bar);
+  // Adiciona a barra de progresso
+  if (!selecionar(".step-progress-bar", linha)) {
+    const nova_barra = document.createElement("div");
+    nova_barra.className = "step-progress-bar";
+    nova_barra.innerHTML = `<div class="step-progress-fill"></div>`;
+    selecionar(".step-info", linha).appendChild(nova_barra);
   }
 }
 
-function completeStep(i) {
-  const rows = $$(".step-row");
-  if (!rows[i]) return;
-  const row       = rows[i];
-  const indicator = $(".step-indicator", row);
-  const stepName  = $(".step-name", row);
-  const stepSub   = $(".step-sub", row);
+function concluirEtapa(i) {
+  const linhas = selecionarTodos(".step-row");
+  if (!linhas[i]) return;
+  const linha       = linhas[i];
+  const indicador = selecionar(".step-indicator", linha);
+  const nome_etapa  = selecionar(".step-name", linha);
+  const subtexto_etapa   = selecionar(".step-sub", linha);
 
-  row.classList.remove("is-active");
-  indicator.className = "step-indicator done";
-  indicator.innerHTML = `
+  linha.classList.remove("is-active");
+  indicador.className = "step-indicator done";
+  indicador.innerHTML = `
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
       <path d="M3 7l3 3 5-5" stroke="#17826A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
-  stepName.className  = "step-name done";
-  stepSub.textContent = "Concluído";
+  nome_etapa.className  = "step-name done";
+  subtexto_etapa.textContent = "Concluído";
 
-  const progressBar = $(".step-progress-bar", row);
-  if (progressBar) progressBar.remove();
+  const barra_progresso = selecionar(".step-progress-bar", linha);
+  if (barra_progresso) barra_progresso.remove();
 }
 
-/* ── Results rendering ─────────────────────────────────────── */
-function getSupportLabel(level) {
-  if (level >= 70) return "Forte suporte";
-  if (level >= 40) return "Suporte moderado";
-  if (level >= 20) return "Suporte fraco";
+/* ── Exibição dos resultados ─────────────────────────────────────── */
+function obterRotuloSuporte(nivel) {
+  if (nivel >= 70) return "Forte suporte";
+  if (nivel >= 40) return "Suporte moderado";
+  if (nivel >= 20) return "Suporte fraco";
   return "Suporte muito limitado";
 }
 
-function getSupportClass(level) {
-  if (level >= 70) return "strong";
-  if (level >= 40) return "moderate";
-  if (level >= 20) return "weak";
+function obterClasseSuporte(nivel) {
+  if (nivel >= 70) return "strong";
+  if (nivel >= 40) return "moderate";
+  if (nivel >= 20) return "weak";
   return "minimal";
 }
 
-function renderResults() {
-  const r   = MOCK_RESULT;
-  const cfg = CLASSIFICATION_CONFIG[r.classification];
+function exibirResultados() {
+  const resultado   = RESULTADO_SIMULADO;
+  const configuracao = CONFIGURACAO_CLASSIFICACAO[resultado.classificacao];
 
-  // Claim
-  const claimEl = $("#result-claim");
-  if (claimEl) claimEl.textContent = `"${r.claim}"`;
+  // Alegação
+  const elemento_alegacao = selecionar("#result-claim");
+  if (elemento_alegacao) elemento_alegacao.textContent = `"${resultado.alegacao}"`;
 
-  // Classification badge
-  const badgeEl = $("#result-badge");
-  if (badgeEl) {
-    badgeEl.className  = `classification-badge ${cfg.cls}`;
-    badgeEl.innerHTML  = `
+  // Classificação
+  const elemento_classificacao = selecionar("#result-badge");
+  if (elemento_classificacao) {
+    elemento_classificacao.className  = `classification-badge ${configuracao.classe}`;
+    elemento_classificacao.innerHTML  = `
       <span class="badge-dot"></span>
-      <span class="badge-label">${cfg.label}</span>`;
+      <span class="badge-label">${configuracao.rotulo}</span>`;
   }
 
-  // Support bar
-  const fillEl  = $("#support-bar-fill");
-  const labelEl = $("#support-bar-label");
-  if (fillEl) {
-    fillEl.className = `support-bar-fill ${getSupportClass(r.supportLevel)}`;
-    // Animate after small delay for transition to kick in
-    setTimeout(() => { fillEl.style.width = r.supportLevel + "%"; }, 50);
+  // Barra de suporte
+  const elemento_barra  = selecionar("#support-bar-fill");
+  const elemento_rotulo = selecionar("#support-bar-label");
+  if (elemento_barra) {
+    elemento_barra.className = `support-bar-fill ${obterClasseSuporte(resultado.nivel_suporte)}`;
+    // Pequeno atraso para permitir a animação da transição
+    setTimeout(() => { elemento_barra.style.width = resultado.nivel_suporte + "%"; }, 50);
   }
-  if (labelEl) labelEl.textContent = getSupportLabel(r.supportLevel);
+  if (elemento_rotulo) elemento_rotulo.textContent = obterRotuloSuporte(resultado.nivel_suporte);
 
-  // Explanation
-  const explEl = $("#result-explanation");
-  if (explEl) explEl.textContent = r.explanation;
+  // Explicação
+  const elemento_explicacao = selecionar("#result-explanation");
+  if (elemento_explicacao) elemento_explicacao.textContent = resultado.explicacao;
 
-  // Highlights
-  const hlList = $("#highlights-list");
-  if (hlList) {
-    hlList.innerHTML = r.highlights.map(h => `
-      <div class="highlight-item ${h.type}">
-        ${h.type === "problematic"
+  // Trechos identificados
+  const lista_trechos = selecionar("#highlights-list");
+  if (lista_trechos) {
+    lista_trechos.innerHTML = resultado.trechos.map(trecho => `
+      <div class="highlight-item ${trecho.tipo}">
+        ${trecho.tipo === "problematic"
           ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                <path d="M7 2L1 12h12L7 2zM7 6v3M7 10.5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
              </svg>`
@@ -318,24 +318,24 @@ function renderResults() {
                <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/>
              </svg>`
         }
-        <span class="highlight-text">"${h.text}"</span>
+        <span class="highlight-text">"${trecho.texto}"</span>
       </div>`).join("");
   }
 
-  // References
-  const refList = $("#references-list");
-  if (refList) {
-    refList.innerHTML = r.references.map(ref => `
+  // Evidências
+  const lista_evidencias = selecionar("#references-list");
+  if (lista_evidencias) {
+    lista_evidencias.innerHTML = resultado.evidencias.map(evidencia => `
       <div class="ref-card">
         <div class="ref-meta">
           <div class="ref-tags">
-            <span class="ref-repo-tag">${ref.repo}</span>
-            <span class="ref-year">${ref.year}</span>
+            <span class="ref-repo-tag">${evidencia.repositorio}</span>
+            <span class="ref-year">${evidencia.ano}</span>
           </div>
-          <div class="ref-title">${ref.title}</div>
-          <div class="ref-authors">${ref.authors} · <em>${ref.source}</em></div>
+          <div class="ref-title">${evidencia.titulo}</div>
+          <div class="ref-authors">${evidencia.autores} · <em>${evidencia.fonte}</em></div>
         </div>
-        <a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="view-study-btn">
+        <a href="${evidencia.url}" target="_blank" rel="noopener noreferrer" class="view-study-btn">
           Ver estudo
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path d="M2 8L8 2M8 2H4M8 2v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -345,75 +345,75 @@ function renderResults() {
   }
 }
 
-/* ── Navigation helpers ────────────────────────────────────── */
-function goHome() {
-  loadingTimers.forEach(clearTimeout);
-  loadingTimers = [];
-  showScreen("home");
+/* ── Funções de navegação ────────────────────────────────────── */
+function irParaInicio() {
+  temporizadores_carregamento.forEach(clearTimeout);
+  temporizadores_carregamento = [];
+  mostrarTela("home");
 }
 
-function scrollToSection(id) {
-  closeMobileMenu();
-  if (currentScreen !== "home") {
-    showScreen("home");
+function rolarParaSecao(id) {
+  fecharMenuMobile();
+  if (tela_atual !== "home") {
+    mostrarTela("home");
     setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      const elemento = document.getElementById(id);
+      if (elemento) elemento.scrollIntoView({ behavior: "smooth" });
     }, 150);
   } else {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    const elemento = document.getElementById(id);
+    if (elemento) elemento.scrollIntoView({ behavior: "smooth" });
   }
 }
 
-/* ── Init ──────────────────────────────────────────────────── */
-function init() {
-  /* Mobile menu */
-  const mobileBtn = $("#mobile-menu-btn");
-  if (mobileBtn) mobileBtn.addEventListener("click", toggleMobileMenu);
+/* ── Inicialização ──────────────────────────────────────────────────── */
+function iniciar() {
+  /* Menu mobile */
+  const botao_mobile = selecionar("#mobile-menu-btn");
+  if (botao_mobile) botao_mobile.addEventListener("click", alternarMenuMobile);
 
-  /* Logo → home */
-  $$(".logo-btn").forEach(btn => btn.addEventListener("click", goHome));
+  /* Logo → início */
+  selecionarTodos(".logo-btn").forEach(botao => botao.addEventListener("click", irParaInicio));
 
-  /* Desktop nav */
-  $$("[data-nav]").forEach(el => {
-    el.addEventListener("click", () => {
-      const target = el.dataset.nav;
-      if (target === "home" || target === "analyze") {
-        closeMobileMenu();
-        goHome();
+  /* Navegação desktop */
+  selecionarTodos("[data-nav]").forEach(elemento => {
+    elemento.addEventListener("click", () => {
+      const alvo = elemento.dataset.nav;
+      if (alvo === "home" || alvo === "analyze") {
+        fecharMenuMobile();
+        irParaInicio();
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        scrollToSection(target);
+        rolarParaSecao(alvo);
       }
     });
   });
 
-  /* Tabs */
-  $$(".tab-btn").forEach(btn => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  /* Abas */
+  selecionarTodos(".tab-btn").forEach(botao => {
+    botao.addEventListener("click", () => trocarAba(botao.dataset.tab));
   });
 
-  /* Input fields → update submit state */
-  const textarea = $("#content-textarea");
-  const linkInput = $("#content-link");
-  if (textarea)  textarea.addEventListener("input", updateSubmitState);
-  if (linkInput) linkInput.addEventListener("input", updateSubmitState);
+  /* Campos de entrada → atualizam o estado do botão */
+  const campo_texto = selecionar("#content-textarea");
+  const campo_link = selecionar("#content-link");
+  if (campo_texto)  campo_texto.addEventListener("input", atualizarEstadoBotao);
+  if (campo_link) campo_link.addEventListener("input", atualizarEstadoBotao);
 
-  /* Submit button */
-  const submitBtn = $("#submit-btn");
-  if (submitBtn) {
-    submitBtn.addEventListener("click", async () => {
-  if (submitBtn.disabled) return;
+  /* Botão de envio */
+  const botao_enviar = selecionar("#submit-btn");
+  if (botao_enviar) {
+    botao_enviar.addEventListener("click", async () => {
+  if (botao_enviar.disabled) return;
 
-  const conteudo = activeTab === "text"
-    ? $("#content-textarea").value.trim()
-    : $("#content-link").value.trim();
+  const conteudo = aba_ativa === "text"
+    ? selecionar("#content-textarea").value.trim()
+    : selecionar("#content-link").value.trim();
 
-  const tipo_entrada = activeTab === "text" ? "texto" : "link";
+  const tipo_entrada = aba_ativa === "text" ? "texto" : "link";
 
-  showScreen("loading");
-  startLoadingAnimation();
+  mostrarTela("loading");
+  iniciarAnimacaoCarregamento();
 
   const resultado = await enviarParaAnalise(tipo_entrada, conteudo);
 
@@ -421,18 +421,18 @@ function init() {
 });
   }
 
-  /* New analysis buttons */
-  $$(".new-analysis-trigger").forEach(btn => {
-    btn.addEventListener("click", goHome);
+  /* Botões de nova análise */
+  selecionarTodos(".new-analysis-trigger").forEach(botao => {
+    botao.addEventListener("click", irParaInicio);
   });
 
-  /* Initialize tab state */
-  switchTab("text");
-  updateSubmitState();
+  /* Inicializa o estado da aba */
+  trocarAba("text");
+  atualizarEstadoBotao();
 
-  /* Initialize support bar at 0 so transition works */
-  const fill = $("#support-bar-fill");
-  if (fill) fill.style.width = "0%";
+  /* Inicializa a barra de suporte em 0 para permitir a transição */
+  const barra = selecionar("#support-bar-fill");
+  if (barra) barra.style.width = "0%";
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", iniciar);
