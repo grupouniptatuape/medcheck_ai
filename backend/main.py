@@ -1,11 +1,25 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Literal
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="MedCheck AI",
     description="API backend do MedCheck AI",
     version="0.1.0"
+)
+
+origens_permitidas = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origens_permitidas,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 # o que o sistema está recebendo: texto ou linkw
 class EntradaAnalise(BaseModel):
