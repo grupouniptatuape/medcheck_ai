@@ -22,60 +22,23 @@ async function enviarParaAnalise(tipo_entrada, conteudo) {
   return await resposta.json();
 }
 
-/* ── Dados simulados ─────────────────────────────────────────────── */
-const RESULTADO_SIMULADO = {
-  alegacao:
-    "A vitamina C em altas doses previne e trata infecções respiratórias, reduzindo significativamente a duração e gravidade de gripes e resfriados.",
-  classificacao: "inconclusive",
-  nivel_suporte: 38,
-  explicacao:
-    "As evidências científicas disponíveis não sustentam de forma consistente a alegação de que a vitamina C em altas doses previne infecções respiratórias na população geral. Metanálises de ensaios clínicos randomizados indicam que a suplementação pode reduzir modestamente a duração de sintomas em populações específicas (atletas de alta performance), mas os efeitos são pequenos e inconsistentes na população geral. A alegação de que 'previne' infecções não encontra suporte robusto nas revisões sistemáticas mais recentes.",
-  trechos: [
-    { texto: "previne e trata infecções respiratórias", tipo: "problematic" },
-    { texto: "reduzindo significativamente", tipo: "problematic" },
-    { texto: "vitamina C em altas doses", tipo: "neutral" },
-  ],
-  evidencias: [
-    {
-      titulo: "Vitamin C for preventing and treating the common cold",
-      fonte: "Cochrane Database of Systematic Reviews",
-      ano: 2023,
-      autores: "Hemilä H, Chalker E.",
-      url: "https://pubmed.ncbi.nlm.nih.gov/",
-      repositorio: "PubMed / Cochrane",
-    },
-    {
-      titulo: "Supplementation of vitamin C reduces the incidence of infection in athletes",
-      fonte: "British Journal of Nutrition",
-      ano: 2021,
-      autores: "Peters EM, et al.",
-      url: "https://pubmed.ncbi.nlm.nih.gov/",
-      repositorio: "PubMed",
-    },
-    {
-      titulo: "Vitamin C and infections — a narrative review",
-      fonte: "Nutrients",
-      ano: 2022,
-      autores: "Carr AC, Maggini S.",
-      url: "https://www.ncbi.nlm.nih.gov/pmc/",
-      repositorio: "PubMed Central",
-    },
-    {
-      titulo: "Vitaminas e imunidade: evidências e limitações das intervenções nutricionais",
-      fonte: "Revista Brasileira de Medicina",
-      ano: 2022,
-      autores: "Silva MR, Ferreira AT, Costa PL.",
-      url: "https://www.scielo.br/",
-      repositorio: "SciELO Brasil",
-    },
-  ],
-};
-
 const CONFIGURACAO_CLASSIFICACAO = {
-  supported:    { rotulo: "Sustentado pelas evidências",  classe: "badge-supported" },
-  inconclusive: { rotulo: "Evidências inconclusivas",     classe: "badge-inconclusive" },
-  contradicted: { rotulo: "Contradito pelas evidências",  classe: "badge-contradicted" },
-  insufficient: { rotulo: "Evidências insuficientes",     classe: "badge-insufficient" },
+  "Sustentado pelas evidências": {
+    rotulo: "Sustentado pelas evidências",
+    classe: "badge-supported"
+  },
+  "Evidências inconclusivas": {
+    rotulo: "Evidências inconclusivas",
+    classe: "badge-inconclusive"
+  },
+  "Contradito pelas evidências": {
+    rotulo: "Contradito pelas evidências",
+    classe: "badge-contradicted"
+  },
+  "Evidências insuficientes": {
+    rotulo: "Evidências insuficientes",
+    classe: "badge-insufficient"
+  }
 };
 
 const ETAPAS_ANALISE = [
@@ -168,7 +131,7 @@ function atualizarEstadoBotao() {
 }
 
 /* ── Animação de carregamento ─────────────────────────────────────── */
-function iniciarAnimacaoCarregamento() {
+function iniciarAnimacaoCarregamento(resultado) {
   // Limpa temporizadores anteriores
   temporizadores_carregamento.forEach(clearTimeout);
   temporizadores_carregamento = [];
@@ -209,7 +172,7 @@ function iniciarAnimacaoCarregamento() {
   // Depois de concluir todas as etapas, exibe os resultados
   const tempo_total = ETAPAS_ANALISE[ETAPAS_ANALISE.length - 1].conclui_em + 900;
   const temporizador_final = setTimeout(() => {
-    exibirResultados();
+    exibirResultados(resultado);
     mostrarTela("results");
   }, tempo_total);
   temporizadores_carregamento.push(temporizador_final);
@@ -274,13 +237,12 @@ function obterClasseSuporte(nivel) {
   return "minimal";
 }
 
-function exibirResultados() {
-  const resultado   = RESULTADO_SIMULADO;
+function exibirResultados(resultado) {
   const configuracao = CONFIGURACAO_CLASSIFICACAO[resultado.classificacao];
 
   // Alegação
   const elemento_alegacao = selecionar("#result-claim");
-  if (elemento_alegacao) elemento_alegacao.textContent = `"${resultado.alegacao}"`;
+  if (elemento_alegacao) elemento_alegacao.textContent = `"${resultado.alegacao_principal}"`;
 
   // Classificação
   const elemento_classificacao = selecionar("#result-badge");
@@ -307,19 +269,13 @@ function exibirResultados() {
 
   // Trechos identificados
   const lista_trechos = selecionar("#highlights-list");
+
   if (lista_trechos) {
-    lista_trechos.innerHTML = resultado.trechos.map(trecho => `
-      <div class="highlight-item ${trecho.tipo}">
-        ${trecho.tipo === "problematic"
-          ? `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-               <path d="M7 2L1 12h12L7 2zM7 6v3M7 10.5h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-             </svg>`
-          : `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-               <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/>
-             </svg>`
-        }
-        <span class="highlight-text">"${trecho.texto}"</span>
-      </div>`).join("");
+    lista_trechos.innerHTML = resultado.trechos_identificados.map(trecho => `
+      <div class="highlight-item">
+        <span class="highlight-text">"${trecho}"</span>
+      </div>
+    `).join("");
   }
 
   // Evidências
@@ -413,11 +369,12 @@ function iniciar() {
   const tipo_entrada = aba_ativa === "text" ? "texto" : "link";
 
   mostrarTela("loading");
-  iniciarAnimacaoCarregamento();
 
   const resultado = await enviarParaAnalise(tipo_entrada, conteudo);
 
   console.log("Resposta do backend:", resultado);
+
+  iniciarAnimacaoCarregamento(resultado);
 });
   }
 
