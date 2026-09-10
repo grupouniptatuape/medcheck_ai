@@ -1,7 +1,7 @@
 from typing import Literal
 from fastapi import APIRouter
 from pydantic import BaseModel
-
+from backend.servicos.pubmed import pesquisar_pubmed
 
 roteador = APIRouter()
 
@@ -23,12 +23,14 @@ class SaidaAnalise(BaseModel):
 
 @roteador.post("/analisar", response_model=SaidaAnalise)
 def analisar(entrada: EntradaAnalise):
+    evidencias = pesquisar_pubmed(entrada.conteudo)
+    
     return {
         "alegacao_principal": entrada.conteudo,
         "classificacao": "Evidências inconclusivas",
         "nivel_suporte": 50,
         "explicacao": "Resposta simulada para teste de integração.",
         "trechos_identificados": [entrada.conteudo],
-        "evidencias": [],
+        "evidencias": evidencias,
         "aviso": "O MedCheck AI possui finalidade informativa e educacional."
     }
