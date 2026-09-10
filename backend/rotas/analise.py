@@ -2,7 +2,7 @@ from typing import Literal
 from fastapi import APIRouter
 from pydantic import BaseModel
 from backend.servicos.pubmed import pesquisar_pubmed
-from backend.servicos.gemini import analisar_com_gemini
+from backend.servicos.gemini import analisar_com_gemini, gerar_termos_busca
 
 roteador = APIRouter()
 
@@ -24,11 +24,14 @@ class SaidaAnalise(BaseModel):
 
 @roteador.post("/analisar", response_model=SaidaAnalise)
 def analisar(entrada: EntradaAnalise):
-    evidencias = pesquisar_pubmed(entrada.conteudo)
+    termos_busca = gerar_termos_busca(entrada.conteudo)
+
+    evidencias = pesquisar_pubmed(termos_busca)
+
     resultado_ia = analisar_com_gemini(
-    entrada.conteudo,
-    evidencias
-)
+        entrada.conteudo,
+        evidencias
+    )
     
     return {
     "alegacao_principal": entrada.conteudo,
