@@ -2,6 +2,7 @@ from typing import Literal
 from fastapi import APIRouter
 from pydantic import BaseModel
 from backend.servicos.pubmed import pesquisar_pubmed
+from backend.servicos.gemini import analisar_com_gemini
 
 roteador = APIRouter()
 
@@ -24,13 +25,17 @@ class SaidaAnalise(BaseModel):
 @roteador.post("/analisar", response_model=SaidaAnalise)
 def analisar(entrada: EntradaAnalise):
     evidencias = pesquisar_pubmed(entrada.conteudo)
+    resultado_ia = analisar_com_gemini(
+    entrada.conteudo,
+    evidencias
+)
     
     return {
-        "alegacao_principal": entrada.conteudo,
-        "classificacao": "Evidências inconclusivas",
-        "nivel_suporte": 50,
-        "explicacao": "Resposta simulada para teste de integração.",
-        "trechos_identificados": [entrada.conteudo],
-        "evidencias": evidencias,
-        "aviso": "O MedCheck AI possui finalidade informativa e educacional."
-    }
+    "alegacao_principal": entrada.conteudo,
+    "classificacao": resultado_ia["classificacao"],
+    "nivel_suporte": resultado_ia["nivel_suporte"],
+    "explicacao": resultado_ia["explicacao"],
+    "trechos_identificados": resultado_ia["trechos_identificados"],
+    "evidencias": evidencias,
+    "aviso": "O MedCheck AI possui finalidade informativa e educacional."
+}
