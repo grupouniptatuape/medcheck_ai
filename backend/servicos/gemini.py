@@ -5,6 +5,37 @@ from google import genai
 
 cliente = genai.Client()
 
+def gerar_termos_busca(alegacao):
+    prompt = f"""
+Transforme a alegação abaixo em uma consulta curta e objetiva para pesquisa
+de artigos científicos no PubMed.
+
+Alegação:
+{alegacao}
+
+Regras:
+- Retorne somente os termos de busca.
+- Use inglês.
+- Preserve os principais conceitos científicos da alegação.
+- Não explique a resposta.
+- Não acrescente informações que não estejam presentes na alegação.
+- Não use aspas.
+- Não use frases completas desnecessariamente.
+
+Exemplo:
+Alegação: A vitamina C previne o resfriado comum.
+Resposta: vitamin C common cold prevention
+
+Agora gere a consulta para a alegação fornecida.
+"""
+
+    resposta = cliente.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    return resposta.text.strip()
+
 
 def analisar_com_gemini(alegacao, evidencias):
     textos_evidencias = []
@@ -83,3 +114,4 @@ Retorne SOMENTE um JSON válido neste formato:
         texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
 
     return json.loads(texto_resposta)
+
