@@ -94,3 +94,13 @@ def buscar_detalhes(pmids):
         })
 
     return artigos
+
+def pesquisar_pubmed(termo, quantidade=5):
+    pmids = buscar_artigos(termo, quantidade)
+
+    if not pmids:
+        return []
+
+    artigos = buscar_detalhes(pmids)
+
+    return artigos
