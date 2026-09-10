@@ -24,32 +24,51 @@ Resumo: {evidencia.get("resumo", "")}
     prompt = f"""
 Você é um sistema acadêmico de apoio à análise de evidências científicas em saúde.
 
-Analise a alegação abaixo APENAS com base nas evidências fornecidas.
+Sua tarefa é comparar a ALEGAÇÃO DO USUÁRIO com as EVIDÊNCIAS CIENTÍFICAS fornecidas.
 
-Alegação:
+ALEGAÇÃO DO USUÁRIO:
 {alegacao}
 
-Evidências:
+EVIDÊNCIAS CIENTÍFICAS:
 {evidencias_formatadas}
 
-Regras:
-- Não invente estudos.
-- Não use conhecimento externo às evidências fornecidas.
-- Não faça diagnóstico médico.
+REGRAS:
+- Analise apenas com base nas evidências científicas fornecidas.
+- Não invente estudos, resultados, autores ou informações.
+- Não utilize conhecimento externo às evidências fornecidas.
+- Não faça diagnóstico médico nem prescreva tratamentos.
 - Diferencie ausência de evidência de evidência contrária.
-- Use apenas uma destas classificações:
-  - Sustentado pelas evidências
-  - Contradito pelas evidências
-  - Evidências inconclusivas
-  - Evidências insuficientes
+- Considere possíveis diferenças entre população geral e grupos específicos.
+- Caso as evidências sejam insuficientes para avaliar a alegação, indique isso claramente.
+
+CLASSIFICAÇÃO:
+Use exatamente uma destas quatro opções:
+- Sustentado pelas evidências
+- Contradito pelas evidências
+- Evidências inconclusivas
+- Evidências insuficientes
+
+TRECHOS IDENTIFICADOS:
+- Os trechos identificados devem ser retirados exclusivamente da ALEGAÇÃO DO USUÁRIO.
+- Não copie frases dos artigos científicos para este campo.
+- Selecione apenas palavras ou expressões da alegação que sejam importantes para a conclusão.
+- Não invente trechos que não estejam presentes na alegação.
+
+NÍVEL DE SUPORTE:
+- Utilize uma escala de 0 a 100.
+- O número representa quanto as evidências fornecidas sustentam a alegação do usuário.
+- 0 significa ausência de suporte ou evidências fortemente contrárias.
+- 100 significa suporte muito robusto à alegação.
+- Este valor não representa probabilidade de a alegação ser verdadeira.
+- O valor é provisório e será posteriormente substituído ou complementado por critérios objetivos do MedCheck.
 
 Retorne SOMENTE um JSON válido neste formato:
 
 {{
   "classificacao": "uma das quatro classificações",
   "nivel_suporte": 0,
-  "explicacao": "explicação curta e clara",
-  "trechos_identificados": ["trecho 1", "trecho 2"]
+  "explicacao": "explicação curta, clara e baseada nas evidências fornecidas",
+  "trechos_identificados": ["trecho literal da alegação"]
 }}
 """
 
