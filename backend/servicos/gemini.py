@@ -1,7 +1,9 @@
 import json
 
 from google import genai
+import time
 
+from google.genai.errors import ServerError
 
 cliente = genai.Client()
 
@@ -103,10 +105,22 @@ Retorne SOMENTE um JSON válido neste formato:
 }}
 """
 
+    try:
     resposta = cliente.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
     )
+
+except ServerError as erro:
+    if erro.code == 503:
+        time.sleep(3)
+
+        resposta = cliente.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+    else:
+        raise
 
     texto_resposta = resposta.text.strip()
 
