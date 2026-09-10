@@ -105,26 +105,26 @@ Retorne SOMENTE um JSON válido neste formato:
 }}
 """
 
-try:
-    resposta = cliente.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+        try:
+            resposta = cliente.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
 
-except ServerError as erro:
-    if erro.code == 503:
-        time.sleep(3)
+        except ServerError as erro:
+            if erro.code == 503:
+                time.sleep(3)
 
-        resposta = cliente.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-    else:
-        raise
+                resposta = cliente.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+             else:
+                raise
 
-texto_resposta = resposta.text.strip()
+        texto_resposta = resposta.text.strip()
 
-if texto_resposta.startswith("```"):
-    texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
+        if texto_resposta.startswith("```"):
+        texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
 
-return json.loads(texto_resposta)
+        return json.loads(texto_resposta)
