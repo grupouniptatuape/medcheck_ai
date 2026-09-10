@@ -285,11 +285,11 @@ function exibirResultados(resultado) {
       <div class="ref-card">
         <div class="ref-meta">
           <div class="ref-tags">
-            <span class="ref-repo-tag">${evidencia.repositorio}</span>
+            <span class="ref-repo-tag">${evidencia.fonte}</span>
             <span class="ref-year">${evidencia.ano}</span>
           </div>
           <div class="ref-title">${evidencia.titulo}</div>
-          <div class="ref-authors">${evidencia.autores} · <em>${evidencia.fonte}</em></div>
+          <div class="ref-authors">${evidencia.autores} · <em>${evidencia.revista}</em></div>
         </div>
         <a href="${evidencia.url}" target="_blank" rel="noopener noreferrer" class="view-study-btn">
           Ver estudo
