@@ -105,7 +105,7 @@ Retorne SOMENTE um JSON válido neste formato:
 }}
 """
 
-    try:
+try:
     resposta = cliente.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
@@ -122,10 +122,9 @@ except ServerError as erro:
     else:
         raise
 
-    texto_resposta = resposta.text.strip()
+texto_resposta = resposta.text.strip()
 
-    if texto_resposta.startswith("```"):
-        texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
+if texto_resposta.startswith("```"):
+    texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
 
-    return json.loads(texto_resposta)
-
+return json.loads(texto_resposta)
