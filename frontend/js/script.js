@@ -6,7 +6,7 @@
 "use strict";
 
 /*const URL_BACKEND = "http://192.168.0.15:8000";*/
-const URL_BACKEND = "http://172.20.10.8:9090:8000";
+const URL_BACKEND = "http://172.20.10.8:8000";
 
 /*const URL_BACKEND = "http://10.22.123.255:8000";*/
 
