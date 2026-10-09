@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.rotas.analise import roteador
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="MedCheck AI",
@@ -9,6 +11,7 @@ app = FastAPI(
 )
 
 app.include_router(roteador)
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 origens_permitidas = [
     "http://127.0.0.1:5500",
@@ -25,7 +28,4 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return {
-        "status": "ok",
-        "message": "MedCheck AI backend funcionando"
-    }
+    return FileResponse("frontend/index.html")
