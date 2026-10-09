@@ -31,10 +31,36 @@ Resposta: vitamin C common cold prevention
 Agora gere a consulta para a alegação fornecida.
 """
 
-    resposta = cliente.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+    
+    try:
+        resposta = cliente.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+    except ClientError as erro:
+        if erro.code == 429:
+            raise RuntimeError(
+                "O Gemini atingiu o limite de requisições. Tente novamente mais tarde."
+            ) from erro
+        raise
+
+    except ServerError as erro:
+        if erro.code == 503:
+            time.sleep(3)
+
+            try:
+                resposta = cliente.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+            except (ClientError, ServerError) as erro_tentativa:
+                raise RuntimeError(
+                    "O Gemini está temporariamente indisponível."
+                ) from erro_tentativa
+        else:
+            raise
+
 
     if resposta.usage_metadata:
         print(
