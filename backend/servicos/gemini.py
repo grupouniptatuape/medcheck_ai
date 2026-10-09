@@ -36,6 +36,25 @@ Agora gere a consulta para a alegação fornecida.
         contents=prompt
     )
 
+    if resposta.usage_metadata:
+        print(
+            f"[GEMINI - BUSCA] Tokens de entrada: "
+            f"{resposta.usage_metadata.prompt_token_count}",
+            flush=True
+        )
+
+        print(
+            f"[GEMINI - BUSCA] Tokens de saída: "
+            f"{resposta.usage_metadata.candidates_token_count}",
+            flush=True
+        )
+
+        print(
+            f"[GEMINI - BUSCA] Total de tokens: "
+            f"{resposta.usage_metadata.total_token_count}",
+            flush=True
+        )
+
     return resposta.text.strip()
 
 
@@ -127,4 +146,24 @@ Retorne SOMENTE um JSON válido neste formato:
     if texto_resposta.startswith("```"):
         texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
 
+
+    if resposta.usage_metadata:
+        print(
+            f"[GEMINI - ANÁLISE] Tokens de entrada: "
+            f"{resposta.usage_metadata.prompt_token_count}",
+            flush=True
+        )
+
+        print(
+            f"[GEMINI - ANÁLISE] Tokens de saída: "
+            f"{resposta.usage_metadata.candidates_token_count}",
+            flush=True
+        )
+
+        print(
+            f"[GEMINI - ANÁLISE] Total de tokens: "
+            f"{resposta.usage_metadata.total_token_count}",
+            flush=True
+        )
+        
     return json.loads(texto_resposta)
