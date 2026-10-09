@@ -1,11 +1,27 @@
 import json
 
 from google import genai
+from pydantic import BaseModel, Field
+from typing import Literal
+
 import time
 
 from google.genai.errors import ClientError, ServerError
 
 cliente = genai.Client()
+
+class ResultadoAnalise(BaseModel):
+    classificacao: Literal[
+        "Sustentado pelas evidências",
+        "Contradito pelas evidências",
+        "Evidências inconclusivas",
+        "Evidências insuficientes"
+    ]
+
+    nivel_suporte: int = Field(ge=0, le=100)
+    explicacao: str = Field(min_length=1)
+    trechos_identificados: list[str]
+
 
 def gerar_termos_busca(alegacao):
     prompt = f"""
@@ -206,4 +222,8 @@ Retorne SOMENTE um JSON válido neste formato:
             flush=True
         )
 
-    return json.loads(texto_resposta)
+    dados = json.loads(texto_resposta)
+
+    resultado_validado = ResultadoAnalise.model_validate(dados)
+
+    return resultado_validado.model_dump()
