@@ -1,5 +1,5 @@
 from typing import Literal
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from backend.servicos.pubmed import pesquisar_pubmed
 from backend.servicos.gemini import analisar_com_gemini, gerar_termos_busca
@@ -65,6 +65,22 @@ def analisar(entrada: EntradaAnalise):
 
         print("8. Resultado preparado para retorno", flush=True)
         return resultado
+
+        except RuntimeError as erro:
+        print(f"ERRO DE SERVIÇO: {erro}", flush=True)
+
+        raise HTTPException(
+            status_code=503,
+            detail=str(erro)
+        ) from erro
+
+    except RuntimeError as erro:
+        print(f"ERRO DE SERVIÇO: {erro}", flush=True)
+
+        raise HTTPException(
+            status_code=503,
+            detail=str(erro)
+        ) from erro
 
     except Exception as erro:
         print(
