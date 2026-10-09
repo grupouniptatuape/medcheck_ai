@@ -3,7 +3,7 @@ import json
 from google import genai
 import time
 
-from google.genai.errors import ServerError
+from google.genai.errors import ClientError, ServerError
 
 cliente = genai.Client()
 
@@ -124,22 +124,36 @@ Retorne SOMENTE um JSON válido neste formato:
 }}
 """
 
+    
     try:
         resposta = cliente.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt
         )
 
+    except ClientError as erro:
+        if erro.code == 429:
+            raise RuntimeError(
+                "O Gemini atingiu o limite de requisições. Tente novamente mais tarde."
+            ) from erro
+        raise
+
     except ServerError as erro:
         if erro.code == 503:
             time.sleep(3)
 
-            resposta = cliente.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt
-            )
+            try:
+                resposta = cliente.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+            except (ClientError, ServerError) as erro_tentativa:
+                raise RuntimeError(
+                    "O Gemini está temporariamente indisponível."
+                ) from erro_tentativa
         else:
             raise
+
 
     texto_resposta = resposta.text.strip()
 
@@ -165,5 +179,5 @@ Retorne SOMENTE um JSON válido neste formato:
             f"{resposta.usage_metadata.total_token_count}",
             flush=True
         )
-        
+
     return json.loads(texto_resposta)
