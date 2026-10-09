@@ -1,6 +1,6 @@
 from typing import Literal
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from backend.servicos.pubmed import pesquisar_pubmed
 from backend.servicos.gemini import analisar_com_gemini, gerar_termos_busca
 
@@ -9,7 +9,17 @@ roteador = APIRouter()
 
 class EntradaAnalise(BaseModel):
     tipo_entrada: Literal["texto", "link"]
-    conteudo: str
+    conteudo: str = Field(min_length=1, max_length=5000)
+
+    @field_validator("conteudo")
+    @classmethod
+    def validar_conteudo(cls, valor):
+        valor = valor.strip()
+
+        if not valor:
+            raise ValueError("O conteúdo da análise não pode estar vazio.")
+
+        return valor
 
 
 class SaidaAnalise(BaseModel):
