@@ -95,12 +95,24 @@ def buscar_detalhes(pmids):
 
     return artigos
 
+
 def pesquisar_pubmed(termo, quantidade=5):
-    pmids = buscar_artigos(termo, quantidade)
+    try:
+        pmids = buscar_artigos(termo, quantidade)
 
-    if not pmids:
-        return []
+        if not pmids:
+            return []
 
-    artigos = buscar_detalhes(pmids)
+        artigos = buscar_detalhes(pmids)
 
-    return artigos
+        return artigos
+
+    except requests.exceptions.Timeout as erro:
+        raise RuntimeError(
+            "O PubMed demorou demais para responder."
+        ) from erro
+
+    except requests.exceptions.RequestException as erro:
+        raise RuntimeError(
+            "Não foi possível estabelecer comunicação com o PubMed."
+        ) from erro
