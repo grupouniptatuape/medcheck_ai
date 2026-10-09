@@ -66,7 +66,7 @@ def analisar(entrada: EntradaAnalise):
         print("8. Resultado preparado para retorno", flush=True)
         return resultado
 
-        except RuntimeError as erro:
+    except RuntimeError as erro:
         print(f"ERRO DE SERVIÇO: {erro}", flush=True)
 
         raise HTTPException(
