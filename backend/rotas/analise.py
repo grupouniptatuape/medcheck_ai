@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from backend.servicos.pubmed import pesquisar_pubmed
 from backend.servicos.gemini import analisar_com_gemini, gerar_termos_busca
+from backend.servicos.extrator_link import acessar_pagina
 
 roteador = APIRouter()
 
@@ -38,8 +39,22 @@ def analisar(entrada: EntradaAnalise):
     print("1. Requisição recebida", flush=True)
 
     try:
+        if entrada.tipo_entrada == "link":
+            print("Extraindo conteúdo do link...", flush=True)
+
+            try:
+                conteudo_analise = acessar_pagina(entrada.conteudo)
+            except ValueError as erro:
+                raise HTTPException(
+                    status_code=422,
+                    detail=str(erro)
+                ) from erro
+        else:
+            conteudo_analise = entrada.conteudo
+
         print("2. Gerando termos de busca...", flush=True)
-        termos_busca = gerar_termos_busca(entrada.conteudo)
+        termos_busca = gerar_termos_busca(conteudo_analise)
+
         print("3. Termos gerados com sucesso", flush=True)
 
         print("4. Consultando PubMed...", flush=True)
@@ -48,7 +63,7 @@ def analisar(entrada: EntradaAnalise):
 
         print("6. Solicitando análise ao Gemini...", flush=True)
         resultado_ia = analisar_com_gemini(
-            entrada.conteudo,
+            conteudo_analise,
             evidencias
         )
         print("7. Análise recebida do Gemini", flush=True)
@@ -74,13 +89,8 @@ def analisar(entrada: EntradaAnalise):
             detail=str(erro)
         ) from erro
 
-    except RuntimeError as erro:
-        print(f"ERRO DE SERVIÇO: {erro}", flush=True)
-
-        raise HTTPException(
-            status_code=503,
-            detail=str(erro)
-        ) from erro
+    except HTTPException:
+        raise
 
     except Exception as erro:
         print(
