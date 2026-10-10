@@ -22,8 +22,19 @@ async function enviarParaAnalise(tipo_entrada, conteudo) {
     })
   });
 
-  return await resposta.json();
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    const mensagem = typeof dados.detail === "string"
+      ? dados.detail
+      : "Não foi possível realizar a análise. Verifique os dados enviados.";
+
+    throw new Error(mensagem);
+  }
+
+  return dados;
 }
+
 
 const CONFIGURACAO_CLASSIFICACAO = {
   "Sustentado pelas evidências": {
@@ -371,13 +382,22 @@ function iniciar() {
 
   const tipo_entrada = aba_ativa === "text" ? "texto" : "link";
 
-  mostrarTela("loading");
+mostrarTela("loading");
 
-  const resultado = await enviarParaAnalise(tipo_entrada, conteudo);
+try {
+    const resultado = await enviarParaAnalise(tipo_entrada, conteudo);
 
-  console.log("Resposta do backend:", resultado);
+    console.log("Resposta do backend:", resultado);
 
-  iniciarAnimacaoCarregamento(resultado);
+    iniciarAnimacaoCarregamento(resultado);
+
+} catch (erro) {
+    console.error("Erro na análise:", erro);
+
+    mostrarTela("home");
+
+    alert(erro.message || "Não foi possível realizar a análise.");
+}
 });
   }
 
