@@ -7,6 +7,8 @@ import requests
 from bs4 import BeautifulSoup
 import certifi
 from urllib3.exceptions import HTTPError
+from urllib3.util import Timeout
+import time
 
 def validar_link(link):
     try:
@@ -101,6 +103,8 @@ def acessar_pagina(link):
     ips_publicos = verificar_ip_publico(endereco)
 
     limite_bytes = 2 * 1024 * 1024
+    limite_tempo = 15
+    inicio_download = time.monotonic()  
     limite_redirecionamentos = 3
 
 
@@ -126,7 +130,7 @@ def acessar_pagina(link):
             port=443,
             maxsize=1,
             block=True,
-            timeout=5,
+            timeout=Timeout(connect=5.0, read=5.0),
             cert_reqs="CERT_REQUIRED",
             ca_certs=certifi.where(),
             assert_hostname=endereco.hostname,
@@ -174,12 +178,30 @@ def acessar_pagina(link):
                     "A página utiliza uma codificação não suportada."
                 )
 
-            conteudo = resposta.read(limite_bytes + 1, decode_content=False)
+        partes = []
+        total_bytes = 0
 
-            if len(conteudo) > limite_bytes:
+        while True:
+            if time.monotonic() - inicio_download > limite_tempo:
+                raise ValueError(
+                    "O download da notícia ultrapassou o tempo permitido."
+                )
+
+            bloco = resposta.read(8192, decode_content=False)
+
+            if not bloco:
+                break
+
+            total_bytes += len(bloco)
+
+            if total_bytes > limite_bytes:
                 raise ValueError(
                     "A página ultrapassa o limite permitido de 2 MB."
                 )
+
+            partes.append(bloco)
+
+        conteudo = b"".join(partes)
 
         except HTTPError as erro:
             raise ValueError(
