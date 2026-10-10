@@ -178,30 +178,30 @@ def acessar_pagina(link):
                     "A página utiliza uma codificação não suportada."
                 )
 
-        partes = []
-        total_bytes = 0
+            partes = []
+            total_bytes = 0
 
-        while True:
-            if time.monotonic() - inicio_download > limite_tempo:
-                raise ValueError(
-                    "O download da notícia ultrapassou o tempo permitido."
-                )
+            while True:
+                if time.monotonic() - inicio_download > limite_tempo:
+                    raise ValueError(
+                        "O download da notícia ultrapassou o tempo permitido."
+                    )
 
-            bloco = resposta.read(8192, decode_content=False)
+                bloco = resposta.read(8192, decode_content=False)
 
-            if not bloco:
-                break
+                if not bloco:
+                    break
 
-            total_bytes += len(bloco)
+                total_bytes += len(bloco)
 
-            if total_bytes > limite_bytes:
-                raise ValueError(
-                    "A página ultrapassa o limite permitido de 2 MB."
-                )
+                if total_bytes > limite_bytes:
+                    raise ValueError(
+                        "A página ultrapassa o limite permitido de 2 MB."
+                    )
 
-            partes.append(bloco)
+                partes.append(bloco)
 
-        conteudo = b"".join(partes)
+            conteudo = b"".join(partes)
 
         except HTTPError as erro:
             raise ValueError(
