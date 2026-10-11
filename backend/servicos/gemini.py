@@ -22,6 +22,75 @@ class ResultadoAnalise(BaseModel):
     explicacao: str = Field(min_length=1)
     trechos_identificados: list[str]
 
+class AlegacaoIdentificada(BaseModel):
+    possui_alegacao: bool
+    alegacao_principal: str
+    justificativa: str
+
+def identificar_alegacao(conteudo):
+    prompt = f"""
+Você é um assistente de análise de informações científicas em saúde.
+
+Analise o conteúdo abaixo e identifique se existe uma alegação
+verificável relacionada à saúde.
+
+CONTEÚDO:
+{conteudo}
+
+REGRAS:
+- Identifique a principal alegação científica de saúde.
+- A alegação deve ser verificável por meio de pesquisas científicas.
+- Não invente afirmações que não estejam presentes no conteúdo.
+- Não confunda o assunto geral com uma alegação científica.
+- Se houver várias alegações, escolha a mais central.
+- Se não houver uma alegação verificável sobre saúde,
+  defina possui_alegacao como false e alegacao_principal como "".
+- Não avalie se a alegação é verdadeira ou falsa.
+- Responda em português.
+
+Retorne SOMENTE um JSON válido:
+
+{{
+  "possui_alegacao": true,
+  "alegacao_principal": "afirmação identificada",
+  "justificativa": "breve explicação da escolha"
+}}
+"""
+
+    try:
+        resposta = cliente.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+        texto_resposta = resposta.text.strip()
+
+        if texto_resposta.startswith("```"):
+            texto_resposta = (
+                texto_resposta.replace("```json", "")
+                .replace("```", "")
+                .strip()
+            )
+
+        dados = json.loads(texto_resposta)
+
+        resultado = AlegacaoIdentificada.model_validate(dados)
+
+        return resultado.model_dump()
+
+    except ClientError as erro:
+        if erro.code == 429:
+            raise RuntimeError(
+                "O Gemini atingiu o limite de requisições. Tente novamente mais tarde."
+            ) from erro
+        raise
+
+    except ServerError as erro:
+        if erro.code == 503:
+            raise RuntimeError(
+                "O Gemini está temporariamente indisponível."
+            ) from erro
+        raise
 
 def gerar_termos_busca(alegacao):
     prompt = f"""
