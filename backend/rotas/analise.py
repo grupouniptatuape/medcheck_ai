@@ -2,7 +2,11 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from backend.servicos.pubmed import pesquisar_pubmed
-from backend.servicos.gemini import analisar_com_gemini, gerar_termos_busca
+from backend.servicos.gemini import (
+    analisar_com_gemini,
+    gerar_termos_busca,
+    identificar_alegacao
+)
 from backend.servicos.extrator_link import acessar_pagina
 
 roteador = APIRouter()
@@ -52,8 +56,20 @@ def analisar(entrada: EntradaAnalise):
         else:
             conteudo_analise = entrada.conteudo
 
-        print("2. Gerando termos de busca...", flush=True)
-        termos_busca = gerar_termos_busca(conteudo_analise)
+        print("2. Identificando alegação científica...", flush=True)
+
+        identificacao = identificar_alegacao(conteudo_analise)
+
+        if not identificacao["possui_alegacao"] or not identificacao["alegacao_principal"].strip():
+            raise HTTPException(
+                status_code=422,
+                detail="Não foi identificada uma alegação científica de saúde neste conteúdo."
+            )
+
+        alegacao_identificada = identificacao["alegacao_principal"]
+
+        print("3. Gerando termos de busca...", flush=True)
+        termos_busca = gerar_termos_busca(alegacao_identificada)
 
         print("3. Termos gerados com sucesso", flush=True)
 
@@ -63,13 +79,13 @@ def analisar(entrada: EntradaAnalise):
 
         print("6. Solicitando análise ao Gemini...", flush=True)
         resultado_ia = analisar_com_gemini(
-            conteudo_analise,
+            alegacao_identificada,
             evidencias
         )
         print("7. Análise recebida do Gemini", flush=True)
 
         resultado = {
-            "alegacao_principal": entrada.conteudo,
+            "alegacao_principal": alegacao_identificada,
             "classificacao": resultado_ia["classificacao"],
             "nivel_suporte": resultado_ia["nivel_suporte"],
             "explicacao": resultado_ia["explicacao"],
