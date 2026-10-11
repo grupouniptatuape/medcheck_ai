@@ -1134,3 +1134,34 @@ input, textarea { font-family: inherit; }
   .ref-card { flex-direction: column; }
   .view-study-btn { align-self: flex-start; }
 }
+
+
+/* Mensagem de erro da análise */
+
+.analysis-error {
+    margin-top: 16px;
+    padding: 16px 18px;
+    background-color: #fff5f5;
+    border: 1px solid #f0caca;
+    border-left: 4px solid #c75b5b;
+    border-radius: 10px;
+    color: #873b3b;
+    text-align: left;
+}
+
+.analysis-error[hidden] {
+    display: none;
+}
+
+.analysis-error strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.analysis-error p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+}

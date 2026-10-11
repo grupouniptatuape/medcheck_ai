@@ -382,6 +382,12 @@ function iniciar() {
 
   const tipo_entrada = aba_ativa === "text" ? "texto" : "link";
 
+const caixa_erro = document.querySelector("#analysis-error");
+
+if (caixa_erro) {
+    caixa_erro.hidden = true;
+}
+
 mostrarTela("loading");
 
 try {
@@ -396,9 +402,18 @@ try {
 
     mostrarTela("home");
 
-    alert(erro.message || "Não foi possível realizar a análise.");
+    const caixa_erro = document.querySelector("#analysis-error");
+    const mensagem_erro = document.querySelector("#analysis-error-message");
+
+    if (caixa_erro && mensagem_erro) {
+        mensagem_erro.textContent =
+            erro.message || "Não foi possível realizar a análise.";
+
+        caixa_erro.hidden = false;
+    }
 }
-});
+}
+);
   }
 
   /* Botões de nova análise */
