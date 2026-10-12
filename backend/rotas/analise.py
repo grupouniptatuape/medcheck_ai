@@ -70,6 +70,9 @@ def analisar(entrada: EntradaAnalise):
 
         print("3. Gerando termos de busca...", flush=True)
         termos_busca = gerar_termos_busca(alegacao_identificada)
+        
+        print(f"[PUBMED] Alegação: {alegacao_identificada}", flush=True)
+        print(f"[PUBMED] Termos de busca: {termos_busca}", flush=True)
 
         print("3. Termos gerados com sucesso", flush=True)
 
