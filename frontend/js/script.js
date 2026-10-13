@@ -548,30 +548,16 @@ async function carregarHistorico() {
         
         dados.analises.forEach(analise => {
             
-const areaAbrir = document.createElement("button");
+            const cartao = document.createElement("div");
+            cartao.className = "history-card";
+
+            const areaAbrir = document.createElement("button");
             areaAbrir.type = "button";
             areaAbrir.className = "history-card-open";
             areaAbrir.setAttribute(
                 "aria-label",
                 `Abrir análise: ${analise.alegacao_principal}`
             );
-
-            cartao.tabIndex = 0;
-            cartao.setAttribute("role", "button");
-            cartao.setAttribute(
-                "aria-label",
-                `Abrir análise: ${analise.alegacao_principal}`
-            );
-
-            cartao.addEventListener("keydown", (evento) => {
-                if (evento.target !== cartao) return;
-
-                if (evento.key === "Enter" || evento.key === " ") {
-                    evento.preventDefault();
-                    cartao.click();
-                }
-            });
-
 
             const titulo = document.createElement("strong");
             titulo.className = "history-card-title";
