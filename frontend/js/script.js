@@ -1,9 +1,15 @@
-/* ============================================================
-   MEDCHECK AI — script.js
-   JavaScript puro — sem frameworks e sem bibliotecas
-   ============================================================ */
-
 "use strict";
+
+function obterIdentificadorVisitante() {
+    let identificador = localStorage.getItem("medcheck_visitante");
+
+    if (!identificador) {
+        identificador = crypto.randomUUID();
+        localStorage.setItem("medcheck_visitante", identificador);
+    }
+
+    return identificador;
+}
 
 /*const URL_BACKEND = "http://192.168.0.15:8000";*/
 const URL_BACKEND = window.location.origin;
@@ -18,7 +24,8 @@ async function enviarParaAnalise(tipo_entrada, conteudo) {
     },
     body: JSON.stringify({
       tipo_entrada: tipo_entrada,
-      conteudo: conteudo
+      conteudo: conteudo,
+      identificador_visitante: obterIdentificadorVisitante()
     })
   });
 

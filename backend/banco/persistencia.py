@@ -2,7 +2,7 @@
 from backend.banco.conexao import conectar_banco
 
 
-def salvar_analise(tipo_entrada, conteudo_original, resultado):
+def salvar_analise(tipo_entrada, conteudo_original, resultado, identificador_visitante):
     conexao = conectar_banco()
     cursor = None
 
@@ -18,9 +18,10 @@ def salvar_analise(tipo_entrada, conteudo_original, resultado):
                 alegacao_principal,
                 classificacao,
                 nivel_suporte,
-                explicacao
+                explicacao,
+                identificador_visitante
             )
-            VALUES (%s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
 
         cursor.execute(sql_analise, (
@@ -29,7 +30,8 @@ def salvar_analise(tipo_entrada, conteudo_original, resultado):
             resultado["alegacao_principal"],
             resultado["classificacao"],
             resultado["nivel_suporte"],
-            resultado["explicacao"]
+            resultado["explicacao"],
+            str(identificador_visitante)
         ))
 
         id_analise = cursor.lastrowid

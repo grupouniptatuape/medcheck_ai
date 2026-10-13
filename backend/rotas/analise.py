@@ -9,6 +9,7 @@ from backend.servicos.gemini import (
 )
 from backend.servicos.extrator_link import acessar_pagina
 from backend.banco.persistencia import salvar_analise
+from uuid import UUID
 
 roteador = APIRouter()
 
@@ -16,6 +17,7 @@ roteador = APIRouter()
 class EntradaAnalise(BaseModel):
     tipo_entrada: Literal["texto", "link"]
     conteudo: str = Field(min_length=1, max_length=5000)
+    identificador_visitante: UUID
 
     @field_validator("conteudo")
     @classmethod
@@ -26,7 +28,6 @@ class EntradaAnalise(BaseModel):
             raise ValueError("O conteúdo da análise não pode estar vazio.")
 
         return valor
-
 
 class SaidaAnalise(BaseModel):
     alegacao_principal: str
@@ -105,7 +106,8 @@ def analisar(entrada: EntradaAnalise):
         id_analise = salvar_analise(
             tipo_entrada=entrada.tipo_entrada,
             conteudo_original=entrada.conteudo,
-            resultado=resultado
+            resultado=resultado,
+            identificador_visitante=entrada.identificador_visitante
         )
 
         print(f"10. Análise salva com ID {id_analise}", flush=True)
