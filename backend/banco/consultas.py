@@ -2,7 +2,7 @@
 from backend.banco.conexao import conectar_banco
 
 
-def buscar_analise(id_analise):
+def buscar_analise(id_analise, identificador_visitante):
     conexao = conectar_banco()
     cursor = None
 
@@ -22,7 +22,8 @@ def buscar_analise(id_analise):
                 criada_em
             FROM analises
             WHERE id_analise = %s
-        """, (id_analise,))
+              AND identificador_visitante = %s
+            """, (id_analise, identificador_visitante))
 
         analise = cursor.fetchone()
 

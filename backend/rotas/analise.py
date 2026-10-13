@@ -10,7 +10,7 @@ from backend.servicos.gemini import (
 from backend.servicos.extrator_link import acessar_pagina
 from backend.banco.persistencia import salvar_analise
 from backend.servicos.sessao import obter_sessao
-from backend.banco.consultas import buscar_historico
+from backend.banco.consultas import buscar_historico, buscar_analise
 
 
 roteador = APIRouter()
@@ -151,3 +151,25 @@ def listar_historico(request: Request, response: Response):
         "total": len(analises),
         "analises": analises
     }
+
+
+@roteador.get("/historico/{id_analise}")
+def detalhar_historico(
+    id_analise: int,
+    request: Request,
+    response: Response
+):
+    identificador = obter_sessao(request, response)
+
+    analise = buscar_analise(
+        id_analise,
+        identificador
+    )
+
+    if analise is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Análise não encontrada."
+        )
+
+    return analise
