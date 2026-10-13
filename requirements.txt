@@ -7,3 +7,4 @@ certifi==2026.7.22
 urllib3==2.7.0
 mysql-connector-python==26.7.0
 python-dotenv==1.2.4
+itsdangerous==2.2.0

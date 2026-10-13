@@ -1,5 +1,5 @@
 from typing import Literal
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field, field_validator
 from backend.servicos.pubmed import pesquisar_pubmed
 from backend.servicos.gemini import (
@@ -9,7 +9,7 @@ from backend.servicos.gemini import (
 )
 from backend.servicos.extrator_link import acessar_pagina
 from backend.banco.persistencia import salvar_analise
-from uuid import UUID
+from backend.servicos.sessao import obter_sessao
 
 roteador = APIRouter()
 
@@ -17,8 +17,7 @@ roteador = APIRouter()
 class EntradaAnalise(BaseModel):
     tipo_entrada: Literal["texto", "link"]
     conteudo: str = Field(min_length=1, max_length=5000)
-    identificador_visitante: UUID
-
+    
     @field_validator("conteudo")
     @classmethod
     def validar_conteudo(cls, valor):
@@ -41,9 +40,12 @@ class SaidaAnalise(BaseModel):
 
 
 @roteador.post("/analisar", response_model=SaidaAnalise)
-def analisar(entrada: EntradaAnalise):
+def analisar(entrada: EntradaAnalise, 
+             request: Request, 
+             response: Response):
     print("1. Requisição recebida", flush=True)
 
+    identificador_sessao = obter_sessao(request, response)
     try:
         if entrada.tipo_entrada == "link":
             print("Extraindo conteúdo do link...", flush=True)
@@ -107,7 +109,7 @@ def analisar(entrada: EntradaAnalise):
             tipo_entrada=entrada.tipo_entrada,
             conteudo_original=entrada.conteudo,
             resultado=resultado,
-            identificador_visitante=entrada.identificador_visitante
+            identificador_visitante=identificador_sessao
         )
 
         print(f"10. Análise salva com ID {id_analise}", flush=True)
