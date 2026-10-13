@@ -4,7 +4,29 @@ function obterIdentificadorVisitante() {
     let identificador = localStorage.getItem("medcheck_visitante");
 
     if (!identificador) {
-        identificador = crypto.randomUUID();
+        if (typeof crypto.randomUUID === "function") {
+            identificador = crypto.randomUUID();
+        } else {
+            const bytes = new Uint8Array(16);
+            crypto.getRandomValues(bytes);
+
+            bytes[6] = (bytes[6] & 0x0f) | 0x40;
+            bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+            const hexadecimal = Array.from(
+                bytes,
+                byte => byte.toString(16).padStart(2, "0")
+            ).join("");
+
+            identificador = [
+                hexadecimal.slice(0, 8),
+                hexadecimal.slice(8, 12),
+                hexadecimal.slice(12, 16),
+                hexadecimal.slice(16, 20),
+                hexadecimal.slice(20)
+            ].join("-");
+        }
+
         localStorage.setItem("medcheck_visitante", identificador);
     }
 
