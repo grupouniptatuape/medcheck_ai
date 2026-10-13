@@ -8,6 +8,7 @@ from backend.servicos.gemini import (
     identificar_alegacao
 )
 from backend.servicos.extrator_link import acessar_pagina
+from backend.banco.persistencia import salvar_analise
 
 roteador = APIRouter()
 
@@ -98,7 +99,20 @@ def analisar(entrada: EntradaAnalise):
         }
 
         print("8. Resultado preparado para retorno", flush=True)
+
+        print("9. Salvando análise no MySQL...", flush=True)
+
+        id_analise = salvar_analise(
+            tipo_entrada=entrada.tipo_entrada,
+            conteudo_original=entrada.conteudo,
+            resultado=resultado
+        )
+
+        print(f"10. Análise salva com ID {id_analise}", flush=True)
+
         return resultado
+
+
 
     except RuntimeError as erro:
         print(f"ERRO DE SERVIÇO: {erro}", flush=True)
