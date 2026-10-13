@@ -71,3 +71,37 @@ def buscar_analise(id_analise):
             cursor.close()
 
         conexao.close()
+
+
+def buscar_historico(identificador_visitante, limite=20):
+    conexao = conectar_banco()
+    cursor = None
+
+    try:
+        cursor = conexao.cursor(dictionary=True)
+
+        consulta = """
+            SELECT
+                id_analise,
+                tipo_entrada,
+                alegacao_principal,
+                classificacao,
+                nivel_suporte,
+                criada_em
+            FROM analises
+            WHERE identificador_visitante = %s
+            ORDER BY criada_em DESC, id_analise DESC
+            LIMIT %s
+        """
+
+        cursor.execute(
+            consulta,
+            (identificador_visitante, limite)
+        )
+
+        return cursor.fetchall()
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conexao.close()

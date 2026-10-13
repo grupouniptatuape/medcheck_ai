@@ -10,6 +10,8 @@ from backend.servicos.gemini import (
 from backend.servicos.extrator_link import acessar_pagina
 from backend.banco.persistencia import salvar_analise
 from backend.servicos.sessao import obter_sessao
+from backend.banco.consultas import buscar_historico
+
 
 roteador = APIRouter()
 
@@ -135,3 +137,17 @@ def analisar(entrada: EntradaAnalise,
             flush=True
         )
         raise
+
+
+
+
+@roteador.get("/historico")
+def listar_historico(request: Request, response: Response):
+    identificador = obter_sessao(request, response)
+
+    analises = buscar_historico(identificador)
+
+    return {
+        "total": len(analises),
+        "analises": analises
+    }
