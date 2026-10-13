@@ -11,7 +11,7 @@ from backend.servicos.extrator_link import acessar_pagina
 from backend.banco.persistencia import salvar_analise
 from backend.servicos.sessao import obter_sessao
 from backend.banco.consultas import buscar_historico, buscar_analise
-
+from backend.banco.consultas import excluir_analise
 
 roteador = APIRouter()
 
