@@ -173,3 +173,28 @@ def detalhar_historico(
         )
 
     return analise
+
+
+
+@roteador.delete("/historico/{id_analise}")
+def remover_historico(
+    id_analise: int,
+    request: Request,
+    response: Response
+):
+    identificador = obter_sessao(request, response)
+
+    excluiu = excluir_analise(
+        id_analise,
+        identificador
+    )
+
+    if not excluiu:
+        raise HTTPException(
+            status_code=404,
+            detail="Análise não encontrada."
+        )
+
+    return {
+        "mensagem": "Análise excluída com sucesso."
+    }

@@ -547,9 +547,31 @@ async function carregarHistorico() {
         }
         
         dados.analises.forEach(analise => {
-            const cartao = document.createElement("button");
-            cartao.type = "button";
-            cartao.className = "history-card";
+            
+const areaAbrir = document.createElement("button");
+            areaAbrir.type = "button";
+            areaAbrir.className = "history-card-open";
+            areaAbrir.setAttribute(
+                "aria-label",
+                `Abrir análise: ${analise.alegacao_principal}`
+            );
+
+            cartao.tabIndex = 0;
+            cartao.setAttribute("role", "button");
+            cartao.setAttribute(
+                "aria-label",
+                `Abrir análise: ${analise.alegacao_principal}`
+            );
+
+            cartao.addEventListener("keydown", (evento) => {
+                if (evento.target !== cartao) return;
+
+                if (evento.key === "Enter" || evento.key === " ") {
+                    evento.preventDefault();
+                    cartao.click();
+                }
+            });
+
 
             const titulo = document.createElement("strong");
             titulo.className = "history-card-title";
@@ -566,8 +588,8 @@ async function carregarHistorico() {
             ).toLocaleString("pt-BR");
 
 
-            cartao.addEventListener("click", async () => {
-                cartao.disabled = true;
+            areaAbrir.addEventListener("click", async () => {
+                areaAbrir.disabled = true;
 
                 try {
                     const resposta = await fetch(
@@ -591,12 +613,54 @@ async function carregarHistorico() {
                     erro.hidden = false;
 
                 } finally {
-                    cartao.disabled = false;
+                    areaAbrir.disabled = false;
                 }
             });
 
-            cartao.append(titulo, classificacao, data);
+            
+            const botaoExcluir = document.createElement("button");
+            botaoExcluir.type = "button";
+            botaoExcluir.className = "history-delete-btn";
+            botaoExcluir.textContent = "Excluir análise";
+
+            botaoExcluir.addEventListener("click", async (evento) => {
+                evento.stopPropagation();
+
+                const confirmou = window.confirm(
+                    "Tem certeza de que deseja excluir esta análise? Essa ação não pode ser desfeita."
+                );
+
+                if (!confirmou) return;
+
+                botaoExcluir.disabled = true;
+
+                try {
+                    const resposta = await fetch(
+                        `/historico/${analise.id_analise}`,
+                        { method: "DELETE" }
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error("Não foi possível excluir a análise.");
+                    }
+
+                    await carregarHistorico();
+
+                } catch (falha) {
+                    console.error("Erro ao excluir análise:", falha);
+                    window.alert(falha.message);
+                    botaoExcluir.disabled = false;
+                }
+            });
+
+            const acoes = document.createElement("div");
+            acoes.className = "history-card-actions";
+            acoes.appendChild(botaoExcluir);
+
+            areaAbrir.append(titulo, classificacao, data);
+            cartao.append(areaAbrir, acoes);
             lista.appendChild(cartao);
+
         });
 
 

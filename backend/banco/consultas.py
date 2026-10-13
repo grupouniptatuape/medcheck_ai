@@ -74,6 +74,36 @@ def buscar_analise(id_analise, identificador_visitante):
         conexao.close()
 
 
+def excluir_analise(id_analise, identificador_visitante):
+    conexao = conectar_banco()
+    cursor = None
+
+    try:
+        cursor = conexao.cursor()
+
+        cursor.execute("""
+            DELETE FROM analises
+            WHERE id_analise = %s
+              AND identificador_visitante = %s
+        """, (id_analise, identificador_visitante))
+
+        excluiu = cursor.rowcount > 0
+
+        conexao.commit()
+
+        return excluiu
+
+    except Exception:
+        conexao.rollback()
+        raise
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+
+        conexao.close()
+
+
 def buscar_historico(identificador_visitante, limite=20):
     conexao = conectar_banco()
     cursor = None
