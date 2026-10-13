@@ -1165,3 +1165,67 @@ input, textarea { font-family: inherit; }
     font-size: 13px;
     line-height: 1.6;
 }
+
+
+/* ── Histórico de análises ── */
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 28px;
+    margin-bottom: 24px;
+}
+
+.history-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 22px 24px;
+
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px;
+
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.history-card:hover {
+    border-color: var(--primary, #17826a);
+    transform: translateY(-2px);
+}
+
+.history-card:focus-visible {
+    outline: 2px solid var(--primary, #17826a);
+    outline-offset: 3px;
+}
+
+.history-card-title {
+    color: var(--foreground, #1f2937);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.history-card-classification {
+    color: var(--primary, #17826a);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.history-card-date {
+    color: var(--muted-foreground, #6b7280);
+    font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+    .history-card {
+        padding: 18px;
+    }
+}

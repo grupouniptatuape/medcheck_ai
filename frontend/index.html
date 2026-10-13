@@ -29,6 +29,7 @@
       <button class="nav-link" data-nav="como-funciona">Como funciona</button>
       <button class="nav-link" data-nav="fontes">Fontes</button>
       <button class="nav-link" data-nav="sobre">Sobre</button>
+      <button class="nav-link" data-nav="history">Minhas análises</button>
       <button class="nav-cta"  data-nav="analyze">Analisar conteúdo</button>
     </nav>
 
@@ -43,6 +44,7 @@
     <button class="nav-mobile-link" data-nav="como-funciona" role="menuitem">Como funciona</button>
     <button class="nav-mobile-link" data-nav="fontes"        role="menuitem">Fontes</button>
     <button class="nav-mobile-link" data-nav="sobre"         role="menuitem">Sobre</button>
+    <button class="nav-mobile-link" data-nav="history" role="menuitem">Minhas análises</button>
     <button class="nav-mobile-cta"  data-nav="analyze"       role="menuitem">Analisar conteúdo</button>
   </div>
 </header>
@@ -484,6 +486,55 @@
     </div>
   </div>
 </div><!-- /screen-results -->
+
+
+
+<!-- SCREEN: HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="results-screen">
+    <div class="results-inner">
+
+      <div class="results-header">
+        <div>
+          <div class="results-label">Seu histórico</div>
+          <h2 class="results-title">Minhas análises</h2>
+        </div>
+
+        <button class="new-analysis-btn" id="history-back-btn">
+          Voltar ao início
+        </button>
+      </div>
+
+      <p class="section-desc">
+        Consulte suas análises anteriores e acompanhe
+        as evidências científicas encontradas.
+      </p>
+
+      <div id="history-loading" role="status" hidden>
+        Carregando suas análises...
+      </div>
+
+      <div id="history-error" role="alert" hidden>
+        Não foi possível carregar o histórico.
+      </div>
+
+      <div id="history-empty" hidden>
+        Você ainda não realizou nenhuma análise nesta sessão.
+      </div>
+
+      <div id="history-list" class="history-list"></div>
+
+      <p class="submit-hint">
+        Seu histórico fica associado a este navegador.
+        Se os dados da sessão forem perdidos, as análises
+        anteriores poderão deixar de estar acessíveis.
+      </p>
+
+    </div>
+  </div>
+</div>
+<!-- /screen-history -->
+
 
 <script src="/static/js/script.js"></script>
 </body>

@@ -283,35 +283,97 @@ function exibirResultados(resultado) {
   // Trechos identificados
   const lista_trechos = selecionar("#highlights-list");
 
+  
   if (lista_trechos) {
-    lista_trechos.innerHTML = resultado.trechos_identificados.map(trecho => `
-      <div class="highlight-item">
-        <span class="highlight-text">"${trecho}"</span>
-      </div>
-    `).join("");
-  }
+      lista_trechos.replaceChildren();
 
+      (resultado.trechos_identificados || []).forEach(trecho => {
+          const item = document.createElement("div");
+          item.className = "highlight-item";
+
+          const texto = document.createElement("span");
+          texto.className = "highlight-text";
+          texto.textContent = `"${trecho}"`;
+
+          item.appendChild(texto);
+          lista_trechos.appendChild(item);
+      });
+  }
+  
   // Evidências
   const lista_evidencias = selecionar("#references-list");
+
   if (lista_evidencias) {
-    lista_evidencias.innerHTML = resultado.evidencias.map(evidencia => `
-      <div class="ref-card">
-        <div class="ref-meta">
-          <div class="ref-tags">
-            <span class="ref-repo-tag">${evidencia.fonte}</span>
-            <span class="ref-year">${evidencia.ano}</span>
-          </div>
-          <div class="ref-title">${evidencia.titulo}</div>
-          <div class="ref-authors">${evidencia.autores} · <em>${evidencia.revista}</em></div>
-        </div>
-        <a href="${evidencia.url}" target="_blank" rel="noopener noreferrer" class="view-study-btn">
-          Ver estudo
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 8L8 2M8 2H4M8 2v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
-        </a>
-      </div>`).join("");
+    lista_evidencias.replaceChildren();
+
+    (resultado.evidencias || []).forEach(evidencia => {
+      const cartao = document.createElement("div");
+      cartao.className = "ref-card";
+
+      const meta = document.createElement("div");
+      meta.className = "ref-meta";
+
+      const tags = document.createElement("div");
+      tags.className = "ref-tags";
+
+      const fonte = document.createElement("span");
+      fonte.className = "ref-repo-tag";
+      fonte.textContent = evidencia.fonte || "Fonte científica";
+
+      const ano = document.createElement("span");
+      ano.className = "ref-year";
+      ano.textContent = evidencia.ano ?? "Ano não informado";
+
+      tags.append(fonte, ano);
+
+      const titulo = document.createElement("div");
+      titulo.className = "ref-title";
+      titulo.textContent = evidencia.titulo || "Estudo sem título";
+
+      const autores = document.createElement("div");
+      autores.className = "ref-authors";
+
+      const nomeAutores = document.createTextNode(
+        `${evidencia.autores || "Autores não informados"} · `
+      );
+
+      const revista = document.createElement("em");
+      revista.textContent =
+        evidencia.revista ||
+        evidencia.fonte ||
+        "Publicação científica";
+
+      autores.append(nomeAutores, revista);
+      meta.append(tags, titulo, autores);
+      cartao.appendChild(meta);
+
+      // Link para o estudo científico
+      const link = document.createElement("a");
+      link.className = "view-study-btn";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      const endereco = evidencia.url || "";
+
+      try {
+        const url = new URL(endereco);
+
+        if (!["https:", "http:"].includes(url.protocol)) {
+          throw new Error("Protocolo não permitido");
+        }
+
+        link.href = url.href;
+        link.textContent = "Ver estudo ↗";
+        cartao.appendChild(link);
+
+      } catch {
+        // Não cria links inválidos ou inseguros.
+      }
+
+      lista_evidencias.appendChild(cartao);
+    });
   }
+
 }
 
 /* ── Funções de navegação ────────────────────────────────────── */
@@ -344,19 +406,44 @@ function iniciar() {
   /* Logo → início */
   selecionarTodos(".logo-btn").forEach(botao => botao.addEventListener("click", irParaInicio));
 
-  /* Navegação desktop */
-  selecionarTodos("[data-nav]").forEach(elemento => {
+/* Navegação desktop e mobile */
+selecionarTodos("[data-nav]").forEach(elemento => {
     elemento.addEventListener("click", () => {
-      const alvo = elemento.dataset.nav;
-      if (alvo === "home" || alvo === "analyze") {
-        fecharMenuMobile();
-        irParaInicio();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        rolarParaSecao(alvo);
-      }
+        const alvo = elemento.dataset.nav;
+
+        if (alvo === "home" || alvo === "analyze") {
+            fecharMenuMobile();
+            irParaInicio();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+        } else if (alvo === "history") {
+            fecharMenuMobile();
+            mostrarTela("history");
+            carregarHistorico();
+
+            document.querySelectorAll(".screen").forEach(tela => {
+                tela.classList.remove("active");
+            });
+
+            document.getElementById("screen-history").classList.add("active");
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+        } else {
+            rolarParaSecao(alvo);
+        }
     });
-  });
+});
+
+
+/* Voltar do histórico para a página inicial */
+const botaoVoltarHistorico = document.getElementById("history-back-btn");
+
+botaoVoltarHistorico.addEventListener("click", () => {
+    irParaInicio();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
 
   /* Abas */
   selecionarTodos(".tab-btn").forEach(botao => {
@@ -430,3 +517,94 @@ try {
 }
 
 document.addEventListener("DOMContentLoaded", iniciar);
+
+
+
+/* Buscar histórico de análises */
+async function carregarHistorico() {
+    const carregando = document.getElementById("history-loading");
+    const erro = document.getElementById("history-error");
+    const vazio = document.getElementById("history-empty");
+    const lista = document.getElementById("history-list");
+
+    carregando.hidden = false;
+    erro.hidden = true;
+    vazio.hidden = true;
+    lista.replaceChildren();
+
+    try {
+        const resposta = await fetch("/historico");
+
+        if (!resposta.ok) {
+            throw new Error("Não foi possível carregar o histórico.");
+        }
+
+        const dados = await resposta.json();
+
+        if (dados.analises.length === 0) {
+            vazio.hidden = false;
+            return;
+        }
+        
+        dados.analises.forEach(analise => {
+            const cartao = document.createElement("button");
+            cartao.type = "button";
+            cartao.className = "history-card";
+
+            const titulo = document.createElement("strong");
+            titulo.className = "history-card-title";
+            titulo.textContent = analise.alegacao_principal;
+
+            const classificacao = document.createElement("span");
+            classificacao.className = "history-card-classification";
+            classificacao.textContent = analise.classificacao;
+
+            const data = document.createElement("span");
+            data.className = "history-card-date";
+            data.textContent = new Date(
+                analise.criada_em
+            ).toLocaleString("pt-BR");
+
+
+            cartao.addEventListener("click", async () => {
+                cartao.disabled = true;
+
+                try {
+                    const resposta = await fetch(
+                        `/historico/${analise.id_analise}`
+                    );
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            "Não foi possível recuperar esta análise."
+                        );
+                    }
+
+                    const resultado = await resposta.json();
+
+                    exibirResultados(resultado);
+                    mostrarTela("results");
+
+                } catch (falha) {
+                    console.error("Erro ao abrir análise:", falha);
+                    erro.textContent = falha.message;
+                    erro.hidden = false;
+
+                } finally {
+                    cartao.disabled = false;
+                }
+            });
+
+            cartao.append(titulo, classificacao, data);
+            lista.appendChild(cartao);
+        });
+
+
+    } catch (falha) {
+        console.error("Erro ao carregar histórico:", falha);
+        erro.hidden = false;
+
+    } finally {
+        carregando.hidden = true;
+    }
+}
