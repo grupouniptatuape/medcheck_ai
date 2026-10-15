@@ -2,6 +2,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field, field_validator
 from backend.servicos.pubmed import pesquisar_pubmed
+from backend.servicos.europe_pmc import pesquisar_europe_pmc
 from backend.servicos.gemini import (
     analisar_com_gemini,
     gerar_termos_busca,
@@ -82,9 +83,32 @@ def analisar(entrada: EntradaAnalise,
 
         print("3. Termos gerados com sucesso", flush=True)
 
+        
         print("4. Consultando PubMed...", flush=True)
-        evidencias = pesquisar_pubmed(termos_busca)
-        print(f"5. PubMed retornou {len(evidencias)} artigos", flush=True)
+        artigos_pubmed = pesquisar_pubmed(termos_busca)
+        print(f"PubMed retornou {len(artigos_pubmed)} artigos", flush=True)
+
+        print("5. Consultando Europe PMC...", flush=True)
+        artigos_europe_pmc = pesquisar_europe_pmc(termos_busca)
+        print(f"Europe PMC retornou {len(artigos_europe_pmc)} artigos", flush=True)
+
+        # Reunir os artigos, evitando repetir o mesmo PMID.
+        evidencias = []
+        pmids_encontrados = set()
+
+        for artigo in artigos_pubmed + artigos_europe_pmc:
+            pmid = str(artigo.get("pmid", "")).strip()
+
+            if pmid and pmid in pmids_encontrados:
+                continue
+
+            if pmid:
+                pmids_encontrados.add(pmid)
+
+            evidencias.append(artigo)
+
+        print(f"Total de evidências sem PMIDs duplicados: {len(evidencias)}", flush=True)
+
 
         print("6. Solicitando análise ao Gemini...", flush=True)
         resultado_ia = analisar_com_gemini(
