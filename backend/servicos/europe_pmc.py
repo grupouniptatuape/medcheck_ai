@@ -7,10 +7,7 @@ URL_BUSCA = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
 
 def pesquisar_europe_pmc(termo, quantidade=5):
     parametros = {
-        "query": " AND ".join(
-            f"TITLE_ABS:{palavra}"
-            for palavra in termo.split()
-        ),
+        "query": termo,
         "format": "json",
         "pageSize": quantidade,
         "resultType": "core"

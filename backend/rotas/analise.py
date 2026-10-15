@@ -6,6 +6,7 @@ from backend.servicos.europe_pmc import pesquisar_europe_pmc
 from backend.servicos.gemini import (
     analisar_com_gemini,
     gerar_termos_busca,
+    gerar_consulta_europe_pmc,
     identificar_alegacao
 )
 from backend.servicos.extrator_link import acessar_pagina
@@ -77,6 +78,9 @@ def analisar(entrada: EntradaAnalise,
 
         print("3. Gerando termos de busca...", flush=True)
         termos_busca = gerar_termos_busca(alegacao_identificada)
+        consulta_europe_pmc = gerar_consulta_europe_pmc(
+            alegacao_identificada
+        )
         
         print(f"[PUBMED] Alegação: {alegacao_identificada}", flush=True)
         print(f"[PUBMED] Termos de busca: {termos_busca}", flush=True)
@@ -89,7 +93,7 @@ def analisar(entrada: EntradaAnalise,
         print(f"PubMed retornou {len(artigos_pubmed)} artigos", flush=True)
 
         print("5. Consultando Europe PMC...", flush=True)
-        artigos_europe_pmc = pesquisar_europe_pmc(termos_busca)
+        artigos_europe_pmc = pesquisar_europe_pmc(consulta_europe_pmc)
         print(f"Europe PMC retornou {len(artigos_europe_pmc)} artigos", flush=True)
 
         # Reunir os artigos, evitando repetir o mesmo PMID.
