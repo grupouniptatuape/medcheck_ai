@@ -169,6 +169,56 @@ Agora gere a consulta para a alegação fornecida.
     return resposta.text.strip()
 
 
+
+def gerar_consulta_europe_pmc(alegacao):
+    prompt = f"""
+Transforme a alegação de saúde abaixo em uma consulta científica
+para a API Europe PMC.
+
+Alegação:
+{alegacao}
+
+Regras:
+- Retorne somente a consulta, em uma única linha.
+- Use termos científicos em inglês.
+- Identifique os conceitos principais da alegação.
+- Inclua sinônimos científicos relevantes quando necessário.
+- Utilize AND para relacionar conceitos diferentes.
+- Utilize OR para agrupar sinônimos do mesmo conceito.
+- Utilize o campo TITLE_ABS para pesquisar em títulos e resumos.
+- Coloque expressões compostas entre aspas duplas.
+- Utilize parênteses para organizar os grupos.
+- Não invente conceitos ausentes da alegação.
+- Não inclua explicações, Markdown ou blocos de código.
+
+Exemplo:
+Alegação: O consumo de bebidas açucaradas aumenta o risco de diabetes tipo 2.
+
+Resposta:
+(TITLE_ABS:"sugar-sweetened beverages" OR TITLE_ABS:"sugary drinks") AND (TITLE_ABS:"type 2 diabetes" OR TITLE_ABS:"diabetes mellitus")
+
+Agora gere a consulta:
+"""
+
+    try:
+        resposta = cliente.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+    except (ClientError, ServerError) as erro:
+        raise RuntimeError(
+            "Não foi possível gerar a consulta científica para o Europe PMC."
+        ) from erro
+
+    if not resposta.text or not resposta.text.strip():
+        raise RuntimeError(
+            "O Gemini não retornou uma consulta para o Europe PMC."
+        )
+
+    return resposta.text.strip()
+
+
 def analisar_com_gemini(alegacao, evidencias):
     textos_evidencias = []
 
