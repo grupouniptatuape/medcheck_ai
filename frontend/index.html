@@ -198,7 +198,11 @@
             </span>
           </div>
           <h3 class="step-card-title">Busca em fontes selecionadas</h3>
-          <p class="step-card-desc">PubMed, SciELO, ScienceDirect, Cochrane, IEEE e outras bases acadêmicas são consultadas.</p>
+          <p class="step-card-desc">
+            O sistema consulta o PubMed e o Europe PMC para recuperar
+            estudos científicos relacionados à alegação analisada.
+          </p>
+
         </div>
 
         <div class="step-card animate-fade-in delay-4">
@@ -270,16 +274,27 @@
           O MedCheck AI consulta exclusivamente fontes acadêmicas e médicas de referência reconhecidas internacionalmente.
         </p>
       </div>
-      <div class="sources-grid">
-        <div class="source-card"><div class="source-name">PubMed / MEDLINE</div><div class="source-desc">NIH — literatura biomédica</div><span class="source-tag">30M+ artigos</span></div>
-        <div class="source-card"><div class="source-name">Cochrane Library</div><div class="source-desc">Revisões sistemáticas</div><span class="source-tag">Revisões</span></div>
-        <div class="source-card"><div class="source-name">SciELO</div><div class="source-desc">América Latina e Caribe</div><span class="source-tag">PT / ES / EN</span></div>
-        <div class="source-card"><div class="source-name">ScienceDirect</div><div class="source-desc">Elsevier — ciências da vida</div><span class="source-tag">18M+ artigos</span></div>
-        <div class="source-card"><div class="source-name">IEEE Xplore</div><div class="source-desc">Tecnologia em saúde</div><span class="source-tag">Eng. Biomédica</span></div>
-        <div class="source-card"><div class="source-name">LILACS</div><div class="source-desc">Literatura latino-americana</div><span class="source-tag">Saúde pública</span></div>
-        <div class="source-card"><div class="source-name">BVS — BIREME</div><div class="source-desc">Biblioteca Virtual de Saúde</div><span class="source-tag">OPAS/OMS</span></div>
-        <div class="source-card"><div class="source-name">Europe PMC</div><div class="source-desc">Ciências da vida — Europa</div><span class="source-tag">Open access</span></div>
+      
+<div class="sources-grid">
+
+      <div class="source-card">
+        <div class="source-name">PubMed / MEDLINE</div>
+        <div class="source-desc">
+          Literatura biomédica e pesquisas em saúde
+        </div>
+        <span class="source-tag">NCBI / NIH</span>
       </div>
+
+      <div class="source-card">
+        <div class="source-name">Europe PMC</div>
+        <div class="source-desc">
+          Literatura científica em ciências da vida
+        </div>
+        <span class="source-tag">Acesso científico</span>
+      </div>
+
+    </div>
+
     </div>
   </section>
 
@@ -374,7 +389,11 @@
         </div>
       </div>
 
-      <p class="loading-sources-hint">Consultando PubMed · SciELO · Cochrane · ScienceDirect · IEEE Xplore</p>
+      
+      <p class="loading-sources-hint">
+        Consultando PubMed e Europe PMC
+      </p>
+
     </div>
   </div>
 </div><!-- /screen-loading -->
