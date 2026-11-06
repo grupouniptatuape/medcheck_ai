@@ -88,13 +88,43 @@ def analisar(entrada: EntradaAnalise,
         print("3. Termos gerados com sucesso", flush=True)
 
         
+        # Consultar as fontes científicas independentemente.
+        artigos_pubmed = []
+        artigos_europe_pmc = []
+        fontes_indisponiveis = []
+
         print("4. Consultando PubMed...", flush=True)
-        artigos_pubmed = pesquisar_pubmed(termos_busca)
-        print(f"PubMed retornou {len(artigos_pubmed)} artigos", flush=True)
+
+        try:
+            artigos_pubmed = pesquisar_pubmed(termos_busca)
+            print(
+                f"PubMed retornou {len(artigos_pubmed)} artigos",
+                flush=True
+            )
+        except RuntimeError as erro:
+            fontes_indisponiveis.append("PubMed")
+            print(f"[PUBMED] Falha: {erro}", flush=True)
 
         print("5. Consultando Europe PMC...", flush=True)
-        artigos_europe_pmc = pesquisar_europe_pmc(consulta_europe_pmc)
-        print(f"Europe PMC retornou {len(artigos_europe_pmc)} artigos", flush=True)
+
+        try:
+            artigos_europe_pmc = pesquisar_europe_pmc(
+                consulta_europe_pmc
+            )
+            print(
+                f"Europe PMC retornou {len(artigos_europe_pmc)} artigos",
+                flush=True
+            )
+        except RuntimeError as erro:
+            fontes_indisponiveis.append("Europe PMC")
+            print(f"[EUROPE PMC] Falha: {erro}", flush=True)
+
+        # Impedir a análise quando nenhuma fonte estiver disponível.
+        if len(fontes_indisponiveis) == 2:
+            raise RuntimeError(
+                "As fontes científicas estão temporariamente "
+                "indisponíveis. Tente novamente mais tarde."
+            )
 
         # Reunir os artigos, evitando repetir o mesmo PMID.
         evidencias = []
@@ -111,9 +141,20 @@ def analisar(entrada: EntradaAnalise,
 
             evidencias.append(artigo)
 
-        print(f"Total de evidências sem PMIDs duplicados: {len(evidencias)}", flush=True)
+        print(
+            f"Total de evidências sem PMIDs duplicados: "
+            f"{len(evidencias)}",
+            flush=True
+        )
 
+        if fontes_indisponiveis:
+            print(
+                "[AVISO] Pesquisa parcial. Fontes indisponíveis: "
+                + ", ".join(fontes_indisponiveis),
+                flush=True
+            )
 
+        
         print("6. Solicitando análise ao Gemini...", flush=True)
         resultado_ia = analisar_com_gemini(
             alegacao_identificada,
